@@ -1,0 +1,266 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: white; /* White text */
+}
+
+/* If you have specific elements like headers, links, etc., ensure they are styled appropriately */
+a, h1, h2, h3, h4, h5, h6 {
+    color: white; /* Ensure text is visible on a black background */
+    /* Other styles for these elements... */
+}
+
+/* Adjust the styles of other elements like buttons, inputs, etc., as needed */
+button, input[type="text"], input[type="date"], textarea {
+    background-color: #333; /* Dark background for input elements */
+    color: white; /* Text color for readability */
+    border: 1px solid #666; /* Subtle border for inputs */
+    /* Other styles for inputs... */
+}
+
+/* Style for the textareas */
+textarea {
+    width: 100%; /* Make the textarea take up the full width of its parent */
+    min-height: 120px; /* Increase the minimum height */
+    background: #222; /* Dark background for the textarea */
+    border: 1px solid #555; /* Subtle border */
+    border-radius: 4px; /* Match the border-radius with the day-column if used */
+    color: #ddd; /* Light text color for visibility */
+    padding: 10px; /* Padding inside the textarea */
+    box-sizing: border-box; /* Include padding and border in the element's size */
+    margin-top: 5px; /* Space between the label and the textarea */
+}
+
+.container {
+    margin-top: 50px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.calendar-container {
+    background-color: black; /* Black background */
+    color: white; /* White text */
+    display: grid;
+    grid-template-columns: 20px auto;
+    overflow: visible; /* Make sure it's not set to 'hidden' */
+}
+
+.gap {
+  margin-top: 2px;
+}
+
+#legendX {
+    display: grid;
+    grid-template-columns: repeat(52, 20px); /* Each column is 20px wide */
+    gap: 2px; /* 2px gap between columns */
+}
+
+#legendY {
+    display: grid;
+    margin-top: 20px;
+}
+
+#calendar {
+    display: grid;
+    grid-template-columns: repeat(52, 20px); /* 52 columns to match the weeks in a year */
+    grid-auto-rows: 20px; /* Each row is 20px tall */
+    gap: 2px; /* 2px gap between cells */
+}
+
+
+.week, .legend-cell {
+    width: 20px; /* Width matches grid column width */
+    height: 20px; /* Height matches grid row height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box; /* Include padding and border in the element's size */
+}
+
+.week {
+    background-color: lightgrey; /* Week background color */
+    color: white; /* White text */
+    position: relative; /* Adjust as necessary */
+    z-index: 0; /* Bring the element forward */
+    margin: 10px; /* Add more space around the squares */
+}
+
+.week:hover {
+    background-color: #b3b3b3; /* A lighter shade when hovered over */
+    cursor: pointer; /* Change the cursor to indicate it's hoverable */
+}
+
+.passed {
+    background-color: #39bf9e; /* Light green, for example */
+
+}
+
+.passed:hover {
+    background-color: #009900; /* A different shade of green for hover effect on passed weeks */
+    cursor: pointer;
+}
+
+.legend-cell {
+    background-color: transparent; /* No background color for legend cells */
+    font-size: smaller; /* Smaller font size for the legend numbers */
+}
+
+.popup {
+    display: none; /* Hide by default */
+    position: absolute; /* Position absolutely for placement control */
+    width: 250px; /* Adjust width as needed */
+    background-color: #8B4513; /* Brown background */
+    color: white; /* Text color */
+    padding: 10px;
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Shadow for depth */
+    z-index: 100; /* Ensure it's above other items */
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: black; /* Black background for modal */
+    color: white; /* White text for modal */
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    text-align: center; /* Center the content inside the modal */
+}
+
+/* Styling for the textarea */
+#journalEntry {
+    width: 80%; /* Set a width relative to the modal */
+    height: 150px; /* Set a fixed height */
+    margin: 10px auto; /* Center the textarea and add some space */
+    padding: 10px; /* Add some padding inside the textarea */
+    border: 1px solid #ccc; /* Subtle border */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 16px; /* Larger font size for better readability */
+    line-height: 1.5; /* Space out the lines a bit */
+    resize: vertical; /* Allow only vertical resizing */
+}
+
+/* Enhance the button appearance */
+#saveJournal {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#saveJournal:hover {
+    background-color: #45a049; /* Slightly darker green on hover */
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.celebratory-week {
+    background-color: #ffbf00; /* Or any celebratory color */
+    /* Add more styles if needed */
+}
+
+.christmas-week {
+    background-color: #ff7878; /* Red background for Christmas week */
+}
+
+.week-view {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 equal columns */
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.day-column {
+    background: #333; /* Adjust background color as needed */
+    border-radius: 5px; /* Optional: add rounded corners */
+    padding: 10px; /* Add padding around the content */
+    margin: 5px; /* Add some space between the columns */
+    color: #fff; /* Light text color for visibility on dark background */
+}
+
+/* .glow-effect {
+    box-shadow: inset 0 0 10px rgba(255, 130, 20, 0.8), 0 0 15px rgba(0, 191, 255, 0.7);
+    transition: box-shadow 0.3s ease-in-out;
+} */
+
+.personal-glow {
+  box-shadow: inset 0 0 10px rgba(255, 130, 20, 0.8), 0 0 15px rgba(0, 191, 255, 0.7);
+}
+
+.inspiration-glow {
+    box-shadow: inset 0 0 10px rgba(128, 0, 128, 0.8), 0 0 15px rgba(75, 0, 130, 0.7); /* A deep purple color */
+}
+
+/* Reset any additional margins or paddings that might be affecting layout */
+* {
+    margin: 0;
+    padding: 0;
+    background-color: black; /* Black background */
+}
+
+.day-rating label {
+    cursor: pointer;
+    margin-right: 5px;
+    font-size: 24px; /* Adjust size as needed */
+}
+
+.day-rating label:hover {
+    opacity: 0.7; /* Style for hover effect, can be adjusted */
+}
+
+/* Style for emoji rating labels */
+.emoji-label {
+    cursor: pointer;
+    display: inline-block; /* Align emojis in a row */
+    margin: 0 5px; /* Space out emojis */
+    font-size: 24px; /* Emoji size */
+    transition: all 0.3s ease; /* Smooth transition for interaction states */
+}
+
+.emoji-label:hover {
+    transform: scale(1.2); /* Slightly enlarge emoji on hover */
+    opacity: 0.75; // Slightly increase opacity on hover
+}
+
+.selected-emoji {
+    opacity: 1; /* Make it fully opaque */
+    border-bottom: 2px solid blue; /* Add a bottom border or other styling */
+    transform: scale(1.2); /* Enlarge selected emoji */
+}
+
+/* Unselected emoji style */
+.emoji-label:not(.selected) {
+    opacity: 0.5; /* Reduced opacity for unselected */
+}

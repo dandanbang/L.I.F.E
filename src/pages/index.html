@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>L.I.F.E.</title>
+    <link rel="stylesheet" type="text/css" href="../assets/styles/main.css">
+    <script src="https://cdn.tiny.cloud/1/52d5ig9qayrkgz785ly434i6lj5s12tzgm2x3giuk6vvh09p/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+</head>
+<body>
+  <div class="container">
+      <h1>L.I.F.E.</h1>
+      <input type="date" id="birthdayInput" placeholder="Enter your birthday...">
+      <button onclick="renderCalendar()">Visualize My Life</button>
+      <div class="calendar-container">
+          <div id="legendY" class="legend"></div>
+          <div>
+              <div id="legendX" class="legend"></div>
+              <div id="calendar"></div>
+          </div>
+      </div>
+  </div>
+
+  <button id="toggleBuffettMilestones">Warren Buffett Milestones</button>
+  <button id="toggleSteveMilestones">Steve Jobs Milestones</button>
+
+
+    <!-- Popup Structure -->
+  <div id="popup" class="popup" style="display: none;"></div>
+
+  <!-- Modal Structure -->
+  <div id="weekModal" class="modal" style="display: none;">
+      <div class="modal-content">
+          <span class="close">&times;</span>
+          <p id="modalText">Journal Entries</p>
+          <div id="weekView" class="week-view">
+              <!-- JavaScript will populate this area with day columns and textareas -->
+          </div>
+          <button id="saveJournal">Save Entries</button>
+      </div>
+  </div>
+
+  <!-- Reference to your external JavaScript file -->
+  <script src="../assets/scripts/script.js"></script>
+</body>
+</html>
