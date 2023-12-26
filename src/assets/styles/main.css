@@ -239,6 +239,8 @@ textarea {
 
 /* Style for emoji rating labels */
 .emoji-label {
+    opacity: 0.5; /* Reduced opacity for unselected */
+    background-color: transparent; /* Ensure background is transparent */
     cursor: pointer;
     display: inline-block; /* Align emojis in a row */
     margin: 0 5px; /* Space out emojis */
@@ -253,11 +255,11 @@ textarea {
 
 .selected-emoji {
     opacity: 1; /* Make it fully opaque */
-    border-bottom: 2px solid blue; /* Add a bottom border or other styling */
     transform: scale(1.2); /* Enlarge selected emoji */
 }
 
-/* Unselected emoji style */
-.emoji-label:not(.selected) {
-    opacity: 0.5; /* Reduced opacity for unselected */
+.emoji-label.currently-selected-emoji {
+    opacity: 1; /* Make it fully opaque */
+    transform: scale(1.2); /* Enlarge selected emoji */
+    background-color: transparent; /* Maintain transparent background */
 }
