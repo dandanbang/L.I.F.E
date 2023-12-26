@@ -70,22 +70,19 @@ textarea {
     gap: 2px; /* 2px gap between cells */
 }
 
-
 .week, .legend-cell {
-    width: 20px; /* Width matches grid column width */
-    height: 20px; /* Height matches grid row height */
+    width: 20px;
+    height: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-sizing: border-box; /* Include padding and border in the element's size */
 }
 
 .week {
     background-color: lightgrey; /* Week background color */
     color: white; /* White text */
     position: relative; /* Adjust as necessary */
-    z-index: 0; /* Bring the element forward */
-    margin: 10px; /* Add more space around the squares */
+    margin: 0; /* Add more space around the squares */
 }
 
 .week:hover {
