@@ -114,9 +114,12 @@ function generateCalendar(totalWeeks, totalWeeksLived) {
     for (let i = 0; i < totalWeeks; i++) {
         const week = document.createElement('div');
         week.classList.add('week');
-        if (i <= totalWeeksLived) {
+        week.setAttribute('data-index', i);  // Starts from 0
+
+        if (i < totalWeeksLived) {
             week.classList.add('passed');
         }
+
         calendar.appendChild(week);
     }
 }
@@ -207,7 +210,6 @@ function updateGlowEffectForWeek(weekIndex) {
     }
 
     const weekElement = document.querySelector(`#calendar .week[data-index="${weekIndex}"]`);
-    // console.log(weekElement)
     if (weekElement) {
         if (hasJournalEntryOrRating) {
             weekElement.classList.add('personal-glow');
@@ -297,6 +299,7 @@ function setupEventListeners() {
     calendar.addEventListener('click', function(event) {
         if (event.target.classList.contains('week')) {
             currentWeekIndex = Array.from(calendar.children).indexOf(event.target);
+            console.log('what week did you click on:' + currentWeekIndex);
             const age = Math.floor(currentWeekIndex / 52);
             const week = currentWeekIndex % 52 + 1;
 
@@ -414,10 +417,9 @@ function setupEventListeners() {
 
         if (hasEntry) {
             const weekElement = document.querySelector(`#calendar .week[data-index="${currentWeekIndex}"]`);
-            console.log('weekElement')
-            console.log(weekElement)
             if (weekElement) {
                 weekElement.classList.add('personal-glow');
+                console.log('adding the personal glow')
             }
         }
 

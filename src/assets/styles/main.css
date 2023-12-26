@@ -251,7 +251,7 @@ textarea {
 
 .emoji-label:hover {
     transform: scale(1.2); /* Slightly enlarge emoji on hover */
-    opacity: 0.75; // Slightly increase opacity on hover
+    opacity: 0.75; /* Slightly increase opacity on hover */
 }
 
 .selected-emoji {
