@@ -31,24 +31,16 @@ const steveMilestones = [
     // Additional milestones can be added here
 ];
 
-
-// Refactored renderCalendar function
+// renderCalendar function
 function renderCalendar() {
     if (!validateAndSetupBirthday()) return;
-
-    const currentYear = new Date().getFullYear();
-    const today = new Date();
-    const yearsLived = calculateYearsLived(today);
-    const weeksInCurrentYear = calculateWeeksInCurrentYear(today);
-    const totalWeeksLived = yearsLived * 52 + weeksInCurrentYear;
-    const totalWeeks = 90 * 52; // Average life expectancy of 90 years
+    const totalWeeks = 90 * 52; // Average life expectancy of 90 years, every year has 52 weeks
 
     generateLegends();
-    generateCalendar(totalWeeks, totalWeeksLived);
-    highlightSpecialWeeks(totalWeeks);
+    generateCalendar(totalWeeks);
+    highlightInspiration(totalWeeks);
     applyGlowEffectToWeeks();
 }
-
 
 // Helper functions
 function validateAndSetupBirthday() {
@@ -59,20 +51,6 @@ function validateAndSetupBirthday() {
     }
     birthday = new Date(birthdayValue);
     return true;
-}
-
-function calculateYearsLived(today) {
-    let years = today.getFullYear() - birthday.getFullYear();
-    if (today.getMonth() < birthday.getMonth() || (today.getMonth() === birthday.getMonth() && today.getDate() < birthday.getDate())) {
-        years--;
-    }
-    return years;
-}
-
-function calculateWeeksInCurrentYear(today) {
-    const lastBirthdayYear = today.getFullYear() - (today < new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate()) ? 1 : 0);
-    const lastBirthday = new Date(lastBirthdayYear, birthday.getMonth(), birthday.getDate());
-    return Math.ceil((today - lastBirthday) / (1000 * 60 * 60 * 24 * 7));
 }
 
 function generateLegends() {
@@ -101,23 +79,45 @@ function generateLegends() {
     }
 }
 
-function generateCalendar(totalWeeks, totalWeeksLived) {
+function generateCalendar(totalWeeks) {
     const calendar = document.getElementById('calendar');
+    const birthday = new Date(document.getElementById('birthdayInput').value);
+    const today = new Date();
+    let year = new Date(birthday).getFullYear(); // starting with brithday year
 
     for (let i = 0; i < totalWeeks; i++) {
         const week = document.createElement('div');
         week.classList.add('week');
+        week.classList.add(year);
         week.setAttribute('data-index', i);  // Starts from 0
-
-        if (i < totalWeeksLived) {
+        
+        // Calculate the date of the current week (assuming the first week starts on January 1st)
+        const currentDate = new Date(birthday.getFullYear(), 0, 1 + i * 7);
+        // console.log('its week ' + i);
+        // console.log('currentDate: ', currentDate);
+        
+        // Mark as 'unborn' if the week is before the birthday in the birth year
+        if (currentDate < birthday && currentDate.getFullYear() === birthday.getFullYear()) {
+            week.classList.add('unborn');
+        }
+        // Mark as 'passed' if the week is before the current week in the current year
+        if (currentDate < today && currentDate.getFullYear() <= today.getFullYear()) {
+            // console.log('weekNumber: ', i);
+            // console.log('currentDate: ', currentDate);
+            // console.log('today: ', today);
             week.classList.add('passed');
+        }
+        
+        // Increase the year if it's the last week of the year
+        if (i % 52 === 51 & i !== 0) {
+            year += 1; 
         }
 
         calendar.appendChild(week);
     }
 }
 
-function highlightSpecialWeeks(totalWeeks) {
+function highlightInspiration(totalWeeks) {
     const weeks = document.querySelectorAll('#calendar .week');
 
     // Highlight the birthday week
@@ -142,7 +142,6 @@ function highlightSpecialWeeks(totalWeeks) {
         }
     }
 }
-
 
 // Function to apply glow effects
 function applyGlowEffectToWeeks() {
@@ -216,12 +215,10 @@ function updateGlowEffectForWeek(weekIndex) {
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
     renderCalendar();
-    // initializeRichTextEditor();
 });
 
 function setupEventListeners() {
     const calendar = document.getElementById('calendar');
-    const rows = 80; // Assuming 80 years
     const columns = 52; // Assuming 52 weeks per year
     const popup = document.getElementById('popup');
     const modal = document.getElementById('weekModal');
@@ -229,8 +226,6 @@ function setupEventListeners() {
 
     const span = document.getElementsByClassName("close")[0];
     let currentWeekIndex;
-    const journalEntry = document.getElementById('journalEntry');
-    const saveJournalButton = document.getElementById('saveJournal');
 
     calendar.addEventListener('mouseover', function(event) {
         if (event.target.classList.contains('week')) {
@@ -251,21 +246,6 @@ function setupEventListeners() {
             if (isChristmasWeek) {
                 popup.innerHTML += ' &#x1F385;'; // Append Santa emoji for Christmas week
             }
-
-            if (showBuffettMilestones) {
-                const milestone = buffettMilestones.find(m => m.age === age && m.week === week);
-                if (milestone) {
-                    popup.innerHTML += `<br>Warren Buffet - ${milestone.event}`;
-                }
-            }
-
-            if (showSteveMilestones) {
-                const milestone = steveMilestones.find(m => m.age === age && m.week === week);
-                if (milestone) {
-                    popup.innerHTML += `<br>Steve Jobs - ${milestone.event}`;
-                }
-            }
-
         }
     });
 
@@ -298,96 +278,41 @@ function setupEventListeners() {
     }
 
     // Function to create a day column with journal entry and emoji ratings
-    function createDayColumn(dayIndex, currentWeekIndex, startDate) {
+    function createDayColumn(dayIndex, currentWeekIndex, birthDate) {
         const dayColumn = document.createElement('div');
         dayColumn.classList.add('day-column');
-
-        // Calculate the date for the day
-        const dayDate = new Date(startDate.getTime()); // Copy the start date
-        dayDate.setDate(startDate.getDate() + currentWeekIndex * 7 + dayIndex - 1); // Adjust for the current week and day
-
-        // Format the date (e.g., Dec 26th, 2023)
-        const dayDateString = dayDate.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-        });
         
-        const dayLabel = document.createElement('div');
-        dayLabel.textContent = `Day ${dayIndex} - ${dayDateString}`;
-        dayColumn.appendChild(dayLabel);
+        // Create the days for the week
+        CreateDates(dayIndex, birthDate, dayColumn, currentWeekIndex);
 
-        const dayJournalEntry = document.createElement('textarea');
-        dayJournalEntry.id = `journalDay${dayIndex}`;
-        dayJournalEntry.rows = 3;
-        dayJournalEntry.classList.add('journal-entry');
-        dayJournalEntry.placeholder = "Write your journal entry for this day...";
-        dayJournalEntry.value = localStorage.getItem(`journal_${currentWeekIndex}_day${dayIndex}`) || '';
-        dayColumn.appendChild(dayJournalEntry);
-
-        const ratingContainer = document.createElement('div');
-        ratingContainer.classList.add('day-rating');
-        dayColumn.appendChild(ratingContainer);
-
-        // Use the provided emoji array
-        const emojis = ['\uD83D\uDE14', '\uD83D\uDE15', '\uD83D\uDE10', '\uD83D\uDE42', '\uD83D\uDE04'];
-        const savedRating = localStorage.getItem(`rating_${currentWeekIndex}_day${dayIndex}`);
-
-        emojis.forEach((emoji, index) => {
-            const emojiId = `rating${currentWeekIndex}_day${dayIndex}_${index}`;
-
-            const ratingInput = document.createElement('input');
-            ratingInput.type = 'radio';
-            ratingInput.id = emojiId;
-            ratingInput.name = `rating${currentWeekIndex}_day${dayIndex}`;
-            ratingInput.value = index + 1; // Assuming the ratings are numerical 1-5
-            ratingInput.style.display = 'none'; // Hide the default radio button
-
-            const emojiLabel = document.createElement('label');
-            emojiLabel.setAttribute('for', emojiId);
-            emojiLabel.classList.add('emoji-label');
-            emojiLabel.innerHTML = emoji; // Setting the emoji from the array
-            ratingContainer.appendChild(ratingInput);
-            ratingContainer.appendChild(emojiLabel);
-
-            if (savedRating && savedRating == ratingInput.value) {
-                emojiLabel.classList.add('currently-selected-emoji');
-                emojiLabel.style.opacity = '1'; // Ensure the selected emoji has full opacity
-            }
-
-            // Event listener for changing the selected rating
-            emojiLabel.addEventListener('click', function() {
-                ratingInput.checked = true;
-                updateEmojiOpacity(ratingContainer, emoji);
-            });
-        });
+        // Create the emoji ratings
+        createEmojis(dayColumn, currentWeekIndex, dayIndex, updateEmojiOpacity);
 
         return dayColumn;
     }
   
-
     // Click event for weeks
     calendar.addEventListener('click', function(event) {
         if (!event.target.classList.contains('week')) {
         return;
         }
     
-        currentWeekIndex = Array.from(calendar.children).indexOf(event.target);
-        console.log('what week did you click on:', currentWeekIndex);
+        currentWeekIndex = Array.from(calendar.children).indexOf(event.target) + 1;
+        console.log('Clicked on Week: ', currentWeekIndex);
 
         const birthdayValue = document.getElementById('birthdayInput').value;
-        // Calculate the start date for the week
-        let startDate = new Date(birthdayValue);    
+        // Calculate the birth date for the week
+        let birthDate = new Date(birthdayValue);    
     
         const age = Math.floor(currentWeekIndex / 52);
-        const week = currentWeekIndex % 52 + 1;
+        const week = currentWeekIndex % 52;
         modalText.textContent = `Journal Entries for Age ${age}, Week ${week}`;
     
         const weekView = document.getElementById('weekView');
         clearElement(weekView);
     
         for (let i = 1; i <= 7; i++) {
-        weekView.appendChild(createDayColumn(i, currentWeekIndex, startDate));
+        weekView.appendChild(createDayColumn(i, currentWeekIndex, birthDate));
         }
     
         modal.style.display = "block";
@@ -440,32 +365,80 @@ function setupEventListeners() {
         }
     }
 }
+// Code for creating day columns, it makes sure partial weeks are accounted for
+function CreateDates(dayIndex, birthDate, dayColumn, currentWeekIndex) {
+    // Calculate the date for the day
+    const currentYearValue = document.getElementsByClassName('week')[currentWeekIndex].classList[1]; // get current year
+    const currentYear = new Date(currentYearValue, 0, 1); // get first day of current year
+    // const currentDate = new Date(birthday.getFullYear(), 0, 1 + i * 7);
+    const yearPassed = currentYear.getFullYear() - birthDate.getFullYear(); // get years passed
+    const daysPassed = (currentWeekIndex - yearPassed * 52) * 7 + dayIndex - 1;
+    currentYear.setDate(daysPassed)
+      
+    // Check if the day falls within the current year, how to get current year? 
+    if (currentYear >= new Date(currentYearValue, 0, 1) && currentYear <= new Date(currentYearValue, 12, 31)) {
+        // Format the date (e.g., Dec 26th, 2023)
+        const dayDateString = currentYear.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+        console.log(dayDateString);
 
-// Code for toggle buttons for milestones
-let showBuffettMilestones = true;
-document.getElementById('toggleBuffettMilestones').addEventListener('click', function() {
-    showBuffettMilestones = !showBuffettMilestones;
-    this.textContent = showBuffettMilestones ? "Hide Buffett's Milestones" : "Show Buffett's Milestones";
-});
+        const dayLabel = document.createElement('div');
+        dayLabel.textContent = `Day ${dayIndex} - ${dayDateString}`;
+        dayColumn.appendChild(dayLabel);
 
-let showSteveMilestones = true;
-document.getElementById('toggleSteveMilestones').addEventListener('click', function() {
-    showSteveMilestones = !showSteveMilestones;
-    this.textContent = showSteveMilestones ? "Hide Steve's Milestones" : "Show Steve's Milestones";
-});
+        const dayJournalEntry = document.createElement('textarea');
+        dayJournalEntry.id = `journalDay${dayIndex}`;
+        dayJournalEntry.rows = 3;
+        dayJournalEntry.classList.add('journal-entry');
+        dayJournalEntry.placeholder = "Write your journal entry for this day...";
+        dayJournalEntry.value = localStorage.getItem(`journal_${currentWeekIndex}_day${dayIndex}`) || '';
+        dayColumn.appendChild(dayJournalEntry);
+    } else {
+        dayColumn.style.display = 'none'; 
+        // console.log('Its ' + dayDate + ' , not current year');
+    }
+}
 
-// function initializeRichTextEditor() {
-//     // Code to initialize the rich text editor...
-//     tinymce.init({
-//       selector: '#journalEditor',
-//       plugins: 'ai tinycomments mentions anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed permanentpen footnotes advtemplate advtable advcode editimage tableofcontents mergetags powerpaste tinymcespellchecker autocorrect a11ychecker typography inlinecss',
-//       toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | align lineheight | tinycomments | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-//       tinycomments_mode: 'embedded',
-//       tinycomments_author: 'Author name',
-//       mergetags_list: [
-//         { value: 'First.Name', title: 'First Name' },
-//         { value: 'Email', title: 'Email' },
-//       ],
-//       ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
-//     });
-// }
+// Code for creating emojis
+function createEmojis(dayColumn, currentWeekIndex, dayIndex, updateEmojiOpacity) {
+    const ratingContainer = document.createElement('div');
+    ratingContainer.classList.add('day-rating');
+    dayColumn.appendChild(ratingContainer);
+
+    // Use the provided emoji array
+    const emojis = ['\uD83D\uDE14', '\uD83D\uDE15', '\uD83D\uDE10', '\uD83D\uDE42', '\uD83D\uDE04'];
+    const savedRating = localStorage.getItem(`rating_${currentWeekIndex}_day${dayIndex}`);
+
+    // Create the radio buttons for each emoji
+    emojis.forEach((emoji, index) => {
+        const emojiId = `rating${currentWeekIndex}_day${dayIndex}_${index}`;
+
+        const ratingInput = document.createElement('input');
+        ratingInput.type = 'radio';
+        ratingInput.id = emojiId;
+        ratingInput.name = `rating${currentWeekIndex}_day${dayIndex}`;
+        ratingInput.value = index + 1; // Assuming the ratings are numerical 1-5
+        ratingInput.style.display = 'none'; // Hide the default radio button
+
+        const emojiLabel = document.createElement('label');
+        emojiLabel.setAttribute('for', emojiId);
+        emojiLabel.classList.add('emoji-label');
+        emojiLabel.innerHTML = emoji; // Setting the emoji from the array
+        ratingContainer.appendChild(ratingInput);
+        ratingContainer.appendChild(emojiLabel);
+
+        if (savedRating && savedRating == ratingInput.value) {
+            emojiLabel.classList.add('currently-selected-emoji');
+            emojiLabel.style.opacity = '1'; // Ensure the selected emoji has full opacity
+        }
+
+        // Event listener for changing the selected rating
+        emojiLabel.addEventListener('click', function () {
+            ratingInput.checked = true;
+            updateEmojiOpacity(ratingContainer, emoji);
+        });
+    });
+}

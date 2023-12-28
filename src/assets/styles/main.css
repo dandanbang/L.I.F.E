@@ -92,12 +92,15 @@ textarea {
 
 .passed {
     background-color: #39bf9e; /* Light green, for example */
-
 }
 
 .passed:hover {
     background-color: #009900; /* A different shade of green for hover effect on passed weeks */
     cursor: pointer;
+}
+
+.unborn {
+    background-color: #94a4a0; /* Light green, for example */
 }
 
 .legend-cell {
