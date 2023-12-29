@@ -78,6 +78,11 @@ textarea {
     align-items: center;
 }
 
+.legend-cell {
+    background-color: transparent; /* No background color for legend cells */
+    font-size: smaller; /* Smaller font size for the legend numbers */
+}
+
 .week {
     background-color: lightgrey; /* Week background color */
     color: white; /* White text */
@@ -101,11 +106,6 @@ textarea {
 
 .unborn {
     background-color: #94a4a0; /* Light green, for example */
-}
-
-.legend-cell {
-    background-color: transparent; /* No background color for legend cells */
-    font-size: smaller; /* Smaller font size for the legend numbers */
 }
 
 .popup {
