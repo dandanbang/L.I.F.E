@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from flask import Flask, jsonify, send_from_directory, render_template, request
 from flask_cors import CORS  
+import sqlite3
 
 app = Flask(__name__, static_folder='../src/assets', static_url_path='')
 CORS(app)  # Enable CORS on the Flask app
@@ -43,6 +44,23 @@ def calendar():
     else:
         # Default to HTML if not JSON
         return render_template('calendar.html', calendar_data=generate_calendar_data(1890, 2123))
+
+def fetch_milestones():
+    print('hello');
+    connection = sqlite3.connect('MyLifeDB')
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM milestones")
+    milestones = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+    return milestones
+
+@app.route('/milestones', methods=['GET'])
+def get_milestones():
+    milestones = fetch_milestones()
+    return jsonify(milestones)
 
 if __name__ == '__main__':
     app.run(debug=True)
