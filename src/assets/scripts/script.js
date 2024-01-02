@@ -56,6 +56,7 @@ function generateLegends() {
         yearLabel.classList.add('legend-cell');
         yearLabel.innerText = i;
         legendY.appendChild(yearLabel);
+
     }
 }
 
@@ -67,6 +68,7 @@ function generateCalendar(calendarData) {
     const startYear = birthday.getFullYear();
     const endYear = startYear + 90; // Assuming lifespan is 90 years
     const today = new Date();
+    const birthWeekNumber = getWeekNumber(birthday);
 
     // Filter the calendar data to include only the years within the user's lifespan
     const filteredData = calendarData.filter(weekData => {
@@ -93,6 +95,12 @@ function generateCalendar(calendarData) {
 
         if (startDate > today) {
             week.classList.add('future-week');
+        }
+
+        if (parseInt(week.getAttribute('data-index')) === birthWeekNumber && startDate.getFullYear() === birthday.getFullYear()) {
+            // Add baby emoji to the week cell
+            week.classList.add('birth-week');
+            week.innerHTML += ' &#x1F476;'; // Unicode for baby emoji
         }
 
         calendar.appendChild(week);
