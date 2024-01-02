@@ -48,10 +48,6 @@ textarea {
     overflow: visible; /* Make sure it's not set to 'hidden' */
 }
 
-.gap {
-  margin-top: 2px;
-}
-
 #legendX {
     display: grid;
     grid-template-columns: repeat(52, 20px); /* Each column is 20px wide */
@@ -60,8 +56,16 @@ textarea {
 
 #legendY {
     display: grid;
-    margin-top: 20px;
+    grid-template-rows: repeat(90, 20px); /* Each row is 20px high */
+    gap: 2px; 
+    margin-top: 20px
 }
+
+.legend-cell {
+    background-color: transparent; /* No background color for legend cells */
+    font-size: smaller; /* Smaller font size for the legend numbers */
+}
+
 
 #calendar {
     display: grid;
@@ -76,11 +80,6 @@ textarea {
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.legend-cell {
-    background-color: transparent; /* No background color for legend cells */
-    font-size: smaller; /* Smaller font size for the legend numbers */
 }
 
 .week {
@@ -265,4 +264,29 @@ textarea {
     opacity: 1; /* Make it fully opaque */
     transform: scale(1.2); /* Enlarge selected emoji */
     background-color: transparent; /* Maintain transparent background */
+}
+
+.future-week {
+    opacity: 0.7; /* Sets the initial opacity of future weeks to 70% */
+    position: relative; /* Establishes a positioning context for the ::after pseudo-element */
+}
+
+.future-week::after {
+    content: '\1F512'; /* Unicode for the lock emoji */
+    position: absolute; /* Positions the pseudo-element absolutely within the .future-week container */
+    top: 50%; /* Centers the emoji vertically within the container */
+    left: 50%; /* Centers the emoji horizontally within the container */
+    transform: translate(-50%, -50%); /* Adjusts the position to center the emoji precisely */
+    font-size: 16px; /* Sets the size of the lock emoji */
+    display: none; /* Initially hides the lock emoji */
+    animation: showLock 3s ease; /* Applies an animation to the emoji when it's displayed */
+}
+
+.future-week.animate-lock::after {
+    display: block; /* Displays the lock emoji when .future-week has .animate-lock class */
+}
+
+@keyframes showLock {
+    0%, 100% { opacity: 0; } /* The lock starts and ends invisible */
+    10%, 90% { opacity: 1; } /* The lock becomes visible quickly and remains so for most of the duration */
 }

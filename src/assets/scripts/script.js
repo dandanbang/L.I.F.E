@@ -1,36 +1,3 @@
-const buffettMilestones = [
-    { age: 26, week: 10, event: "Started Buffett Partnership Ltd." },
-    { age: 32, week: 22, event: "Became a millionaire" },
-    { age: 35, week: 15, event: "Took control of Berkshire Hathaway" },
-    { age: 39, week: 5, event: "Berkshire Hathaway began buying stock in ABC" },
-    { age: 47, week: 30, event: "Buffett's net worth reached $140 million" },
-    { age: 56, week: 12, event: "Berkshire Hathaway made a $6.3 billion investment in Coca-Cola" },
-    { age: 59, week: 18, event: "Became the wealthiest person in the United States" },
-    { age: 60, week: 25, event: "Berkshire Hathaway purchased Duracell" },
-    { age: 70, week: 33, event: "Pledged to give away 99% of his fortune" },
-    { age: 75, week: 40, event: "Berkshire Hathaway acquired PacifiCorp" },
-    { age: 80, week: 7, event: "Awarded the Presidential Medal of Freedom" },
-    { age: 88, week: 29, event: "Berkshire Hathaway invested in Paytm, an Indian digital payment company" }
-    // Additional milestones can be added here
-];
-
-const steveMilestones = [
-    { age: 21, week: 15, event: "Co-founded Apple Computer Inc. with Steve Wozniak and Ronald Wayne" },
-    { age: 26, week: 30, event: "Introduced the Apple II" },
-    { age: 29, week: 10, event: "Saw the demo of Xerox PARC's mouse-driven graphical interface" },
-    { age: 30, week: 22, event: "Introduced the Macintosh" },
-    { age: 30, week: 40, event: "Ousted from Apple" },
-    { age: 34, week: 12, event: "Founded NeXT Inc." },
-    { age: 35, week: 28, event: "Purchased The Graphics Group, later renamed Pixar" },
-    { age: 40, week: 33, event: "Apple bought NeXT; Jobs returned to Apple" },
-    { age: 42, week: 18, event: "Named interim CEO of Apple" },
-    { age: 45, week: 44, event: "Introduced the iPod" },
-    { age: 51, week: 37, event: "Announced the iPhone" },
-    { age: 54, week: 26, event: "Introduced the iPad" },
-    { age: 56, week: 35, event: "Resigned as CEO of Apple" }
-    // Additional milestones can be added here
-];
-
 function fetchCalendarData() {
     fetch('http://127.0.0.1:5000/calendar')
     .then(response => response.json())
@@ -40,8 +7,17 @@ function fetchCalendarData() {
     .catch(error => console.error('Error fetching calendar data:', error))
     .then(() => { // Add a function declaration here
         highlightInspiration();
-        applyGlowEffectToWeeks();
+        fetchMilestonesData();
     });
+}
+
+function fetchMilestonesData() {
+    fetch('http://127.0.0.1:5000/milestones')
+        .then(response => response.json())
+        .then(data => {
+            applyGlowEffectToWeeks(data);
+        })
+        .catch(error => console.error('Error fetching milestones data:', error));
 }
 
 // renderCalendar function
@@ -75,16 +51,11 @@ function generateLegends() {
     }
 
     // Generate Y legend (Age)
-    for (let i = 0; i < 90; i++) {
+    for (let i = 0; i < 91; i++) {
         const yearLabel = document.createElement('div');
         yearLabel.classList.add('legend-cell');
         yearLabel.innerText = i;
         legendY.appendChild(yearLabel);
-        if (i < 90) {
-            const gap = document.createElement('div');
-            gap.classList.add('gap');
-            legendY.appendChild(gap);
-        }
     }
 }
 
@@ -120,8 +91,13 @@ function generateCalendar(calendarData) {
             week.classList.add('passed');
         }
 
+        if (startDate > today) {
+            week.classList.add('future-week');
+        }
+
         calendar.appendChild(week);
     });
+
 }
 
 function highlightInspiration() {
@@ -159,15 +135,28 @@ function getWeekNumber(d) {
     return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
 }
 
+// Function to calculate age based on birthday and a given date
+function calculateAge(birthday, date) {
+    let age = date.getFullYear() - birthday.getFullYear();
+    let m = date.getMonth() - birthday.getMonth();
+    if (m < 0 || (m === 0 && date.getDate() < birthday.getDate())) {
+        age--;
+    }
+    return age;
+}
+
 // Function to apply glow effects
-function applyGlowEffectToWeeks() {
+function applyGlowEffectToWeeks(milestoneData) {
     const weeks = document.querySelectorAll('#calendar .week');
 
     weeks.forEach((week, index) => {
-        const age = Math.floor(index / 52);
-        const weekOfYear = index % 52 + 1;
+
         let hasPersonalUpdate = false;
         let hasInspirationMilestone = false;
+
+        const startDate = new Date(week.getAttribute('start-date'));
+        const age = calculateAge(birthday, startDate);
+        const weekOfYear = index % 52 + 1;// Holds the milestone content
 
         // Check for personal journal entries or ratings
         for (let i = 0; i < 7; i++) {
@@ -177,19 +166,17 @@ function applyGlowEffectToWeeks() {
                 break;
             }
         }
-
-        // Check for milestones fro m inspirational figures
-        const inspirationalFigures = [buffettMilestones, steveMilestones]; // Array of milestone arrays
-        inspirationalFigures.forEach(milestones => {
-            if (milestones.some(milestone => milestone.age === age && milestone.week === weekOfYear)) {
+        // Check for milestones from fetched data
+        milestoneData.forEach(milestone => {
+            if (milestone[2] === age && milestone[3] === weekOfYear) {
                 hasInspirationMilestone = true;
+                week.setAttribute('milestone', milestone[1] + ', ' + milestone[4]); // Set the milestone attribute')
             }
         });
 
         // Apply the appropriate glow effect
         week.classList.remove('personal-glow', 'inspiration-glow');
         if (hasPersonalUpdate) {
-            console.log('week: being updated', week);
             week.classList.add('personal-glow');
         }
         if (hasInspirationMilestone) {
@@ -197,6 +184,7 @@ function applyGlowEffectToWeeks() {
         }
     });
 }
+
 
 // Event listener setup
 document.addEventListener('DOMContentLoaded', function() {
@@ -211,18 +199,15 @@ function setupEventListeners() {
     const modal = document.getElementById('weekModal');
     const modalText = document.getElementById('modalText');
     const span = document.getElementsByClassName("close")[0];
-    
-    /**
-     * Represents the index of the current week.
-     * @type {number}
-     */
+    const saveButton = document.getElementById('saveJournal');
     let currentWeekIndex;
 
     calendar.addEventListener('mouseover', function(event) {
         if (event.target.classList.contains('week')) {
             // Calculate age and week based on the square's index
             const index = Array.from(calendar.children).indexOf(event.target);
-            const age = Math.floor(index / columns); // this is wrong now
+            const clickedDate = new Date(event.target.getAttribute('start-date'));
+            const age = calculateAge(birthday, clickedDate);
             const week = event.target.getAttribute('data-index'); // Adding 1 since week count starts from 1
 
             // Update the popup content
@@ -232,6 +217,12 @@ function setupEventListeners() {
             popup.style.left = `${rect.left}px`;
             popup.style.top = `${rect.bottom + window.scrollY}px`;
             popup.style.display = 'block';
+
+            const milestoneContent = event.target.getAttribute('milestone');
+            // Existing logic to update the popup content
+            if (milestoneContent) {
+                popup.innerHTML += `<br>${milestoneContent}`; // Append milestone content
+            }
 
             const isChristmasWeek = event.target.classList.contains('christmas-week');
             if (isChristmasWeek) {
@@ -339,19 +330,31 @@ function setupEventListeners() {
 
         return dayColumn;
     }
-  
+
     // Click event for weeks
     calendar.addEventListener('click', function(event) {
-        if (!event.target.classList.contains('week')) {
-        return;
+        // Handle future weeks separately
+        if (event.target.classList.contains('future-week')) {
+            // Add 'animate-lock' class to the clicked future-week element
+            event.target.classList.add('animate-lock');
+
+            // Remove 'animate-lock' class after 3 seconds
+            setTimeout(() => event.target.classList.remove('animate-lock'), 3000);
+            return; // Exit the function early for future weeks
         }
-        
+
+        if (!event.target.classList.contains('week')) {
+            return;
+        }
+
+        // Existing logic for handling clicks on weeks
         const weeks = document.querySelectorAll('#calendar .week');
         currentWeekIndex = Array.from(calendar.children).indexOf(event.target);
         console.log('Clicked on Week: ', currentWeekIndex);
 
         // shows the age and week of the modal
-        const age = Math.floor(currentWeekIndex / 52); // age is wrong now
+        const clickedDate = new Date(event.target.getAttribute('start-date'));
+        const age = calculateAge(birthday, clickedDate);  // Use the new function to calculate age    
         const weekNumber = event.target.getAttribute('data-index');
         modalText.textContent = `Journal Entries for Age ${age}, Week ${weekNumber}`;
     
@@ -371,8 +374,6 @@ function setupEventListeners() {
         modal.style.display = "block";
     });
     
-    // Example: Saving logic for day entries (you will need to adapt this based on your save mechanism)
-    const saveButton = document.getElementById('saveJournal');
     saveButton.addEventListener('click', function() {
         let hasEntry = false; // Flag to check if any day has an entry
         const weeks = document.querySelectorAll('#calendar .week');
@@ -421,6 +422,8 @@ function setupEventListeners() {
         }
     }
 }
+
+
 
 // Update glow effect based on journal entries
 function updateGlowEffectForWeek(currentWeekIndex) {
