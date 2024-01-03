@@ -212,6 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupEventListeners() {
     const calendar = document.getElementById('calendar');
     setupCalendarMouseEvents(calendar);
+    setupModalCloseEvent();
     const modal = document.getElementById('weekModal');
     const modalText = document.getElementById('modalText');
     const span = document.getElementsByClassName("close")[0];
@@ -397,15 +398,6 @@ function setupEventListeners() {
         modal.style.display = "none";
     });
 
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
 }
 
 function setupCalendarMouseEvents(calendar) {
@@ -447,35 +439,16 @@ function hideWeekPopup(event, popup) {
     }
 }
 
-// calendar.addEventListener('mouseover', function(event) {
-//     if (event.target.classList.contains('week')) {
-//         // Calculate age and week based on the square's index
-//         const index = Array.from(calendar.children).indexOf(event.target);
-//         const clickedDate = new Date(event.target.getAttribute('start-date'));
-//         const age = calculateAge(birthday, clickedDate);
-//         const week = event.target.getAttribute('data-index'); // Adding 1 since week count starts from 1
-
-//         // Update the popup content
-//         popup.innerHTML = `Age ${age}, Week ${week}, the highlight of this week is...`;
-//         // Position the popup
-//         const rect = event.target.getBoundingClientRect();
-//         popup.style.left = `${rect.left}px`;
-//         popup.style.top = `${rect.bottom + window.scrollY}px`;
-//         popup.style.display = 'block';
-
-//         const milestoneContent = event.target.getAttribute('milestone');
-//         // Existing logic to update the popup content
-//         if (milestoneContent) {
-//             popup.innerHTML += `<br>${milestoneContent}`; // Append milestone content
-//         }
-
-//         const isChristmasWeek = event.target.classList.contains('christmas-week');
-//         if (isChristmasWeek) {
-//             popup.innerHTML += ' &#x1F385;'; // Append Santa emoji for Christmas week
-//         }
-//     }
-// });
-
+function setupModalCloseEvent() {
+    const modal = document.getElementById('weekModal');
+    const span = document.getElementsByClassName("close")[0];
+    span.onclick = () => modal.style.display = "none";
+    window.onclick = event => {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
+}
 
 // Update glow effect based on journal entries
 function updateGlowEffectForWeek(currentWeekIndex) {
