@@ -211,112 +211,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function setupEventListeners() {
     const calendar = document.getElementById('calendar');
-    setupCalendarMouseEvents(calendar);
-    setupModalCloseEvent();
     const modal = document.getElementById('weekModal');
     const modalText = document.getElementById('modalText');
-    const span = document.getElementsByClassName("close")[0];
     const saveButton = document.getElementById('saveJournal');
     let currentWeekIndex;
-    
-    // Helper function to clear element content
-    /**
-     * Clears the content of an HTML element.
-     * @param {HTMLElement} element - The element to be cleared.
-     */
-    function clearElement(element) {
-    element.innerHTML = '';
-    }
-    
-    // Function to update emoji opacity
-    function updateEmojiOpacity(container, selectedEmoji) {
-        container.querySelectorAll('.emoji-label').forEach(label => {
-            label.classList.remove('currently-selected-emoji'); // Remove the class from all emojis
-            label.style.opacity = '0.5'; // Reset opacity to unselected state
-
-            if (label.innerHTML === selectedEmoji) {
-                label.classList.add('currently-selected-emoji'); // Add the class to the selected emoji
-                label.style.opacity = '1'; // Set opacity to selected state
-            }
-        });
-    }
-
-    // Function to create a day column with journal entry and emoji ratings
-    function createDayColumn(date, dayIndex, currentWeekIndex) {
-        const dayColumn = createDayColumnContainer(dayIndex);
-        const dayDate = new Date(date);
-    
-        createDayLabel(dayColumn, dayDate, dayIndex);
-        createJournalEntry(dayColumn, dayIndex, currentWeekIndex);
-        createEmojiRatings(dayColumn, dayIndex, currentWeekIndex);
-    
-        return dayColumn;
-    }
-    
-    function createDayColumnContainer(dayIndex) {
-        const dayColumn = document.createElement('div');
-        dayColumn.classList.add('day-column');
-        return dayColumn;
-    }
-    
-    function createDayLabel(dayColumn, dayDate, dayIndex) {
-        const dayDateString = dayDate.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-        });
-        const dayLabel = document.createElement('div');
-        dayLabel.textContent = `Day ${dayIndex + 1} - ${dayDateString}`;
-        dayColumn.appendChild(dayLabel);
-    }
-    
-    function createJournalEntry(dayColumn, dayIndex, currentWeekIndex) {
-        const dayJournalEntry = document.createElement('textarea');
-        dayJournalEntry.id = `journalDay${dayIndex + 1}`;
-        dayJournalEntry.rows = 3;
-        dayJournalEntry.classList.add('journal-entry');
-        dayJournalEntry.placeholder = "Write your journal entry for this day...";
-        dayJournalEntry.value = localStorage.getItem(`journal_${currentWeekIndex}_day${dayIndex + 1}`) || '';
-        dayColumn.appendChild(dayJournalEntry);
-    }
-    
-    function createEmojiRatings(dayColumn, dayIndex, currentWeekIndex) {
-        const ratingContainer = document.createElement('div');
-        ratingContainer.classList.add('day-rating');
-        dayColumn.appendChild(ratingContainer);
-    
-        const emojis = ['\uD83D\uDE14', '\uD83D\uDE15', '\uD83D\uDE10', '\uD83D\uDE42', '\uD83D\uDE04'];
-        const savedRating = localStorage.getItem(`rating_${currentWeekIndex}_day${dayIndex + 1}`);
-    
-        emojis.forEach((emoji, emojiIndex) => {
-            const emojiId = `rating${currentWeekIndex}_day${dayIndex + 1}_${emojiIndex + 1}`;
-            const ratingInput = document.createElement('input');
-            ratingInput.type = 'radio';
-            ratingInput.id = emojiId;
-            ratingInput.name = `rating${currentWeekIndex}_day${dayIndex + 1}`;
-            ratingInput.value = emojiIndex + 1;
-            ratingInput.style.display = 'none';
-    
-            const emojiLabel = document.createElement('label');
-            emojiLabel.setAttribute('for', emojiId);
-            emojiLabel.classList.add('emoji-label');
-            emojiLabel.innerHTML = emoji;
-            ratingContainer.appendChild(ratingInput);
-            ratingContainer.appendChild(emojiLabel);
-    
-            if (savedRating && savedRating == ratingInput.value) {
-                emojiLabel.classList.add('currently-selected-emoji');
-                emojiLabel.style.opacity = '1';
-            }
-    
-            emojiLabel.addEventListener('click', function () {
-                ratingInput.checked = true;
-                updateEmojiOpacity(ratingContainer, emoji);
-            });
-        });
-    }
-    
-
+    setupCalendarMouseEvents(calendar);
+    setupModalCloseEvent();
+        
     // Click event for weeks
     calendar.addEventListener('click', function(event) {
         // Handle future weeks separately
@@ -346,6 +247,8 @@ function setupEventListeners() {
     
         // Create the day columns for the week
         const weekView = document.getElementById('weekView');
+        
+        //clean the element for 7 day journal
         clearElement(weekView);
         const week = weeks[currentWeekIndex];
 
@@ -397,7 +300,94 @@ function setupEventListeners() {
         alert('Journal entries and ratings saved.');
         modal.style.display = "none";
     });
+}
 
+// Function to create a day column with journal entry and emoji ratings
+function createDayColumn(date, dayIndex, currentWeekIndex) {
+    const dayColumn = createDayColumnContainer();
+    const dayDate = new Date(date);
+
+    createDayLabel(dayColumn, dayDate, dayIndex);
+    createJournalEntry(dayColumn, dayIndex, currentWeekIndex);
+    createEmojiRatings(dayColumn, dayIndex, currentWeekIndex);
+
+    return dayColumn;
+}
+
+function createDayColumnContainer() {
+    const dayColumn = document.createElement('div');
+    dayColumn.classList.add('day-column');
+    return dayColumn;
+}
+
+function createDayLabel(dayColumn, dayDate, dayIndex) {
+    const dayDateString = dayDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+    const dayLabel = document.createElement('div');
+    dayLabel.textContent = `Day ${dayIndex + 1} - ${dayDateString}`;
+    dayColumn.appendChild(dayLabel);
+}
+
+function createJournalEntry(dayColumn, dayIndex, currentWeekIndex) {
+    const dayJournalEntry = document.createElement('textarea');
+    dayJournalEntry.id = `journalDay${dayIndex + 1}`;
+    dayJournalEntry.rows = 3;
+    dayJournalEntry.classList.add('journal-entry');
+    dayJournalEntry.placeholder = "Write your journal entry for this day...";
+    dayJournalEntry.value = localStorage.getItem(`journal_${currentWeekIndex}_day${dayIndex + 1}`) || '';
+    dayColumn.appendChild(dayJournalEntry);
+}
+
+function createEmojiRatings(dayColumn, dayIndex, currentWeekIndex) {
+    const ratingContainer = document.createElement('div');
+    ratingContainer.classList.add('day-rating');
+    dayColumn.appendChild(ratingContainer);
+
+    const emojis = ['\uD83D\uDE14', '\uD83D\uDE15', '\uD83D\uDE10', '\uD83D\uDE42', '\uD83D\uDE04'];
+    const savedRating = localStorage.getItem(`rating_${currentWeekIndex}_day${dayIndex + 1}`);
+
+    emojis.forEach((emoji, emojiIndex) => {
+        const emojiId = `rating${currentWeekIndex}_day${dayIndex + 1}_${emojiIndex + 1}`;
+        const ratingInput = document.createElement('input');
+        ratingInput.type = 'radio';
+        ratingInput.id = emojiId;
+        ratingInput.name = `rating${currentWeekIndex}_day${dayIndex + 1}`;
+        ratingInput.value = emojiIndex + 1;
+        ratingInput.style.display = 'none';
+
+        const emojiLabel = document.createElement('label');
+        emojiLabel.setAttribute('for', emojiId);
+        emojiLabel.classList.add('emoji-label');
+        emojiLabel.innerHTML = emoji;
+        ratingContainer.appendChild(ratingInput);
+        ratingContainer.appendChild(emojiLabel);
+
+        if (savedRating && savedRating == ratingInput.value) {
+            emojiLabel.classList.add('currently-selected-emoji');
+            emojiLabel.style.opacity = '1';
+        }
+
+        emojiLabel.addEventListener('click', function () {
+            ratingInput.checked = true;
+            updateEmojiOpacity(ratingContainer, emoji);
+        });
+    });
+}    
+
+    // Function to update emoji opacity
+function updateEmojiOpacity(container, selectedEmoji) {
+    container.querySelectorAll('.emoji-label').forEach(label => {
+        label.classList.remove('currently-selected-emoji'); // Remove the class from all emojis
+        label.style.opacity = '0.5'; // Reset opacity to unselected state
+
+        if (label.innerHTML === selectedEmoji) {
+            label.classList.add('currently-selected-emoji'); // Add the class to the selected emoji
+            label.style.opacity = '1'; // Set opacity to selected state
+        }
+    });
 }
 
 function setupCalendarMouseEvents(calendar) {
@@ -449,6 +439,15 @@ function setupModalCloseEvent() {
         }
     };
 }
+
+// Helper function to clear element content
+/**
+ * Clears the content of an HTML element.
+ * @param {HTMLElement} element - The element to be cleared.
+ */
+function clearElement(element) {
+    element.innerHTML = '';
+    }
 
 // Update glow effect based on journal entries
 function updateGlowEffectForWeek(currentWeekIndex) {
