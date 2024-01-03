@@ -73,7 +73,7 @@ function generateCalendar(calendarData) {
     const filteredData = filterCalendarData(calendarData, startYear, endYear);
 
     filteredData.forEach(weekData => {
-        const week = createWeekElement(weekData, birthday, today, birthWeekNumber);
+        const week = createWeekElement(weekData);
         classifyWeek(week, weekData, birthday, today, birthWeekNumber);
         appendWeekToCalendar(calendar, week);
     });
@@ -86,7 +86,7 @@ function filterCalendarData(calendarData, startYear, endYear) {
     });
 }
 
-function createWeekElement(weekData, birthday, today, birthWeekNumber) {
+function createWeekElement(weekData) {
     const week = document.createElement('div');
     week.classList.add('week');
     week.classList.add(weekData.year);
@@ -203,7 +203,6 @@ function applyGlowEffectToWeeks(milestoneData) {
     });
 }
 
-
 // Event listener setup
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
@@ -277,76 +276,80 @@ function setupEventListeners() {
     }
 
     // Function to create a day column with journal entry and emoji ratings
-    function createDayColumn(date, dayIndex) {
+    function createDayColumn(date, dayIndex, currentWeekIndex) {
+        const dayColumn = createDayColumnContainer(dayIndex);
+        const dayDate = new Date(date);
+    
+        createDayLabel(dayColumn, dayDate, dayIndex);
+        createJournalEntry(dayColumn, dayIndex, currentWeekIndex);
+        createEmojiRatings(dayColumn, dayIndex, currentWeekIndex);
+    
+        return dayColumn;
+    }
+    
+    function createDayColumnContainer(dayIndex) {
         const dayColumn = document.createElement('div');
         dayColumn.classList.add('day-column');
-        
-        // Convert string to Date and then to the desired format
-        const dayDate = new Date(date);
+        return dayColumn;
+    }
+    
+    function createDayLabel(dayColumn, dayDate, dayIndex) {
         const dayDateString = dayDate.toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
             year: 'numeric'
         });
-    
         const dayLabel = document.createElement('div');
-        dayLabel.textContent = `Day ${dayIndex + 1} - ${dayDateString}`; 
+        dayLabel.textContent = `Day ${dayIndex + 1} - ${dayDateString}`;
         dayColumn.appendChild(dayLabel);
+    }
     
+    function createJournalEntry(dayColumn, dayIndex, currentWeekIndex) {
         const dayJournalEntry = document.createElement('textarea');
         dayJournalEntry.id = `journalDay${dayIndex + 1}`;
         dayJournalEntry.rows = 3;
         dayJournalEntry.classList.add('journal-entry');
         dayJournalEntry.placeholder = "Write your journal entry for this day...";
         dayJournalEntry.value = localStorage.getItem(`journal_${currentWeekIndex}_day${dayIndex + 1}`) || '';
-
         dayColumn.appendChild(dayJournalEntry);
+    }
     
-        // Assuming you have a container for these columns
-        document.getElementById('weekView').appendChild(dayColumn);
-
-        // createEmojis(dayColumn, date, index, updateEmojiOpacity);
-        // Create the emoji ratings
+    function createEmojiRatings(dayColumn, dayIndex, currentWeekIndex) {
         const ratingContainer = document.createElement('div');
         ratingContainer.classList.add('day-rating');
         dayColumn.appendChild(ratingContainer);
     
-        // Use the provided emoji array
         const emojis = ['\uD83D\uDE14', '\uD83D\uDE15', '\uD83D\uDE10', '\uD83D\uDE42', '\uD83D\uDE04'];
         const savedRating = localStorage.getItem(`rating_${currentWeekIndex}_day${dayIndex + 1}`);
     
-        // Create the radio buttons for each emoji
-        emojis.forEach((emoji, index) => {
-            const emojiId = `rating${currentWeekIndex}_day${dayIndex + 1}_${index + 1}`;
-    
+        emojis.forEach((emoji, emojiIndex) => {
+            const emojiId = `rating${currentWeekIndex}_day${dayIndex + 1}_${emojiIndex + 1}`;
             const ratingInput = document.createElement('input');
             ratingInput.type = 'radio';
             ratingInput.id = emojiId;
             ratingInput.name = `rating${currentWeekIndex}_day${dayIndex + 1}`;
-            ratingInput.value = index + 1; // Assuming the ratings are numerical 1-5
-            ratingInput.style.display = 'none'; // Hide the default radio button
+            ratingInput.value = emojiIndex + 1;
+            ratingInput.style.display = 'none';
     
             const emojiLabel = document.createElement('label');
             emojiLabel.setAttribute('for', emojiId);
             emojiLabel.classList.add('emoji-label');
-            emojiLabel.innerHTML = emoji; // Setting the emoji from the array
+            emojiLabel.innerHTML = emoji;
             ratingContainer.appendChild(ratingInput);
             ratingContainer.appendChild(emojiLabel);
     
             if (savedRating && savedRating == ratingInput.value) {
                 emojiLabel.classList.add('currently-selected-emoji');
-                emojiLabel.style.opacity = '1'; // Ensure the selected emoji has full opacity
+                emojiLabel.style.opacity = '1';
             }
     
-            // Event listener for changing the selected rating
             emojiLabel.addEventListener('click', function () {
                 ratingInput.checked = true;
                 updateEmojiOpacity(ratingContainer, emoji);
             });
         });
-
-        return dayColumn;
     }
+    
 
     // Click event for weeks
     calendar.addEventListener('click', function(event) {
@@ -385,7 +388,7 @@ function setupEventListeners() {
         const dates = daysInWeek.split(',');
     
         dates.forEach((date, dayIndex) => {        
-            weekView.appendChild(createDayColumn(date, dayIndex));
+            weekView.appendChild(createDayColumn(date, dayIndex, currentWeekIndex));
         });
     
         modal.style.display = "block";
