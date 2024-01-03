@@ -7,9 +7,13 @@
 </head>
 <body>
   <div class="container">
-      <h1>L.I.F.E.</h1>
-      <input type="date" id="birthdayInput" placeholder="Enter your birthday...">
-      <button onclick="renderCalendar()">Visualize My Life</button>
+    <div id="initial-container" class="centered-container">
+        <h1>My Life Operating System</h1>
+        <div class="input-group">
+          <input type="date" id="birthdayInput" placeholder="Enter your birthday...">
+          <button id="visualizeButton" onclick="renderCalendar()">Visualize My Life</button>
+        </div>
+    </div>
       <div class="calendar-container">
           <div id="legendY" class="legend"></div>
           <div>
@@ -18,10 +22,6 @@
           </div>
       </div>
   </div>
-
-  <!-- <button id="toggleBuffettMilestones">Warren Buffett Milestones</button>
-  <button id="toggleSteveMilestones">Steve Jobs Milestones</button> -->
-
 
     <!-- Popup Structure -->
   <div id="popup" class="popup" style="display: none;"></div>

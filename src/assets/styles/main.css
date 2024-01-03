@@ -1,10 +1,13 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Avenir', 'Helvetica Neue', sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    color: white; /* White text */
+    background: #f7f7f7;
+    color: #333;
+    text-align: center;
 }
+
 
 /* If you have specific elements like headers, links, etc., ensure they are styled appropriately */
 a, h1, h2, h3, h4, h5, h6 {
@@ -39,6 +42,67 @@ textarea {
     align-items: center;
     flex-direction: column;
 }
+
+/* This will center your container */
+.centered-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* This will take the full height of the viewport */
+  }
+  
+.input-group {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+#birthdayInput {
+    border: 2px solid #dddddd;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-right: 10px;
+    font-size: 16px;
+    width: calc(100% - 130px);
+}
+
+#visualizeButton:hover {
+    background-color: #009900;
+}
+
+/* Styling for input with the calendar icon */
+input[type="date"] {
+    background: url('path_to_your_white_calendar_icon.png') no-repeat right;
+    color: white;
+    -webkit-color: white; 
+  }
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+    text-align: center;
+}
+
+input[type="date"]::-webkit-inner-spin-button {
+    display: none;
+}
+
+input[type="date"] {
+    text-align: center;
+    -moz-text-align-last: center; /* Firefox */
+}
+
+#visualizeButton {
+    margin-top: 20px;
+    background-color: #39bf9e;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+
 
 .calendar-container {
     background-color: black; /* Black background */
@@ -161,7 +225,7 @@ textarea {
     font-size: 16px;
     border: none;
     border-radius: 5px;
-    background-color: #4CAF50; /* Green background */
+    background-color: #39bf9e; /* Green background */
     color: white;
     cursor: pointer;
     margin-top: 10px;
@@ -290,3 +354,5 @@ textarea {
     0%, 100% { opacity: 0; } /* The lock starts and ends invisible */
     10%, 90% { opacity: 1; } /* The lock becomes visible quickly and remains so for most of the duration */
 }
+
+  

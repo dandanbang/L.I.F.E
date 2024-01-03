@@ -23,8 +23,16 @@ function fetchMilestonesData() {
 // renderCalendar function
 function renderCalendar() {
     if (!validateAndSetupBirthday()) return;
+
+    // Hide the initial container
+    document.getElementById('initial-container').style.display = 'none';
+
     generateLegends();
     fetchCalendarData()
+
+    
+    // After generating the calendar, make sure it's visible
+    document.getElementById('calendar').style.display = 'grid'; // Assuming the calendar is using a grid layout
 }
 
 // Helper functions
@@ -116,7 +124,6 @@ function classifyWeek(week, weekData, birthday, today, birthWeekNumber) {
 function appendWeekToCalendar(calendar, week) {
     calendar.appendChild(week);
 }
-
 
 function highlightInspiration() {
     const birthday = new Date(document.getElementById('birthdayInput').value);
