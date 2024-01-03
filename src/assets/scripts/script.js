@@ -62,51 +62,61 @@ function generateLegends() {
 
 function generateCalendar(calendarData) {
     const calendar = document.getElementById('calendar');
-    calendar.innerHTML = ''; // Clear the calendar before rendering new data
+    calendar.innerHTML = ''; // Clear existing calendar data
 
     const birthday = new Date(document.getElementById('birthdayInput').value);
     const startYear = birthday.getFullYear();
-    const endYear = startYear + 90; // Assuming lifespan is 90 years
+    const endYear = startYear + 90; // Assuming lifespan of 90 years
     const today = new Date();
     const birthWeekNumber = getWeekNumber(birthday);
 
-    // Filter the calendar data to include only the years within the user's lifespan
-    const filteredData = calendarData.filter(weekData => {
+    const filteredData = filterCalendarData(calendarData, startYear, endYear);
+
+    filteredData.forEach(weekData => {
+        const week = createWeekElement(weekData, birthday, today, birthWeekNumber);
+        classifyWeek(week, weekData, birthday, today, birthWeekNumber);
+        appendWeekToCalendar(calendar, week);
+    });
+}
+
+function filterCalendarData(calendarData, startYear, endYear) {
+    return calendarData.filter(weekData => {
         const year = new Date(weekData.start_date).getFullYear();
         return year >= startYear && year <= endYear;
     });
-
-    filteredData.forEach(weekData => {
-        const week = document.createElement('div');
-        week.classList.add('week');
-        week.classList.add(weekData.year);
-        week.setAttribute('start-date', weekData.start_date);
-        week.setAttribute('days-in-week', weekData.days);
-        week.setAttribute('data-index', weekData.week);
-        const startDate = new Date(weekData.start_date);
-
-        if (startDate < birthday && startDate.getFullYear() === birthday.getFullYear()) {
-            week.classList.add('unborn');
-        }
-
-        if (startDate < today && startDate.getFullYear() <= today.getFullYear()) {
-            week.classList.add('passed');
-        }
-
-        if (startDate > today) {
-            week.classList.add('future-week');
-        }
-
-        if (parseInt(week.getAttribute('data-index')) === birthWeekNumber && startDate.getFullYear() === birthday.getFullYear()) {
-            // Add baby emoji to the week cell
-            week.classList.add('birth-week');
-            week.innerHTML += ' &#x1F476;'; // Unicode for baby emoji
-        }
-
-        calendar.appendChild(week);
-    });
-
 }
+
+function createWeekElement(weekData, birthday, today, birthWeekNumber) {
+    const week = document.createElement('div');
+    week.classList.add('week');
+    week.classList.add(weekData.year);
+    week.setAttribute('start-date', weekData.start_date);
+    week.setAttribute('days-in-week', weekData.days);
+    week.setAttribute('data-index', weekData.week);
+    return week;
+}
+
+function classifyWeek(week, weekData, birthday, today, birthWeekNumber) {
+    const startDate = new Date(weekData.start_date);
+    if (startDate < birthday && startDate.getFullYear() === birthday.getFullYear()) {
+        week.classList.add('unborn');
+    }
+    if (startDate < today && startDate.getFullYear() <= today.getFullYear()) {
+        week.classList.add('passed');
+    }
+    if (startDate > today) {
+        week.classList.add('future-week');
+    }
+    if (parseInt(week.getAttribute('data-index')) === birthWeekNumber && startDate.getFullYear() === birthday.getFullYear()) {
+        week.classList.add('birth-week');
+        week.innerHTML += ' &#x1F476;'; // Unicode for baby emoji
+    }
+}
+
+function appendWeekToCalendar(calendar, week) {
+    calendar.appendChild(week);
+}
+
 
 function highlightInspiration() {
     const birthday = new Date(document.getElementById('birthdayInput').value);
@@ -202,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function setupEventListeners() {
     const calendar = document.getElementById('calendar');
-    const columns = 52; // Assuming 52 weeks per year
     const popup = document.getElementById('popup');
     const modal = document.getElementById('weekModal');
     const modalText = document.getElementById('modalText');
@@ -430,8 +439,6 @@ function setupEventListeners() {
         }
     }
 }
-
-
 
 // Update glow effect based on journal entries
 function updateGlowEffectForWeek(currentWeekIndex) {
