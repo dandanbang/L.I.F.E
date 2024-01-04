@@ -39,7 +39,6 @@ function renderCalendar() {
 function validateAndSetupBirthday() {
     const birthdayValue = document.getElementById('birthdayInput').value;
     if (!birthdayValue) {
-        alert('Please enter your birthday.');
         return false;
     }
     birthday = new Date(birthdayValue);
@@ -304,7 +303,6 @@ function setupEventListeners() {
 
         updateGlowEffectForWeek(currentWeekIndex);
 
-        alert('Journal entries and ratings saved.');
         modal.style.display = "none";
     });
 }

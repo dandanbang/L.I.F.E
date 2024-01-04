@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>L.I.F.E.</title>
-    <link rel="stylesheet" type="text/css" href="../assets/styles/main.css">
+    <title>Life Operating System</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/main.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 </head>
 <body>
@@ -39,6 +39,7 @@
   </div>
 
   <!-- Reference to your external JavaScript file -->
-  <script src="../assets/scripts/script.js"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.test.js') }}"></script>
 </body>
 </html>

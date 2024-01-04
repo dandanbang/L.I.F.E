@@ -3,8 +3,12 @@ from flask import Flask, jsonify, send_from_directory, render_template, request
 from flask_cors import CORS  
 import sqlite3
 
-app = Flask(__name__, static_folder='../src/assets', static_url_path='')
+app = Flask(__name__, static_folder='static')
 CORS(app)  # Enable CORS on the Flask app
+
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 def generate_calendar_data(start_year, end_year):
     calendar_data = []
@@ -46,10 +50,8 @@ def calendar():
         return render_template('calendar.html', calendar_data=generate_calendar_data(1890, 2123))
 
 def fetch_milestones():
-    print('hello');
     connection = sqlite3.connect('MyLifeDB')
     cursor = connection.cursor()
-
     cursor.execute("SELECT * FROM milestones")
     milestones = cursor.fetchall()
 
