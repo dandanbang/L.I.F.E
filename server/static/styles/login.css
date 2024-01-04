@@ -1,0 +1,100 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: black;
+  }
+  
+.login-container {
+    background-color: black; /* white background */
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px; /* or any fixed width */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* subtle shadow */
+    text-align: center;
+    margin: auto;
+  }
+  
+  #googleLogin {
+    background-color: #39bf9e; /* Google's blue color, change as desired */
+    color:black;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  
+  #createAccountForm input[type="email"],
+  #createAccountForm input[type="password"] {
+    /* styling for input fields */
+  }
+  
+  #createAccountForm button {
+    background-color: #39bf9e; /* Google's blue color, change as desired */
+    color:black;
+    border: none;
+    padding: 10px 15px;
+    margin-top: 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+  }
+
+  /* If you have specific elements like headers, links, etc., ensure they are styled appropriately */
+a, h1, h2, h3, h4, h5, h6 {
+    color: white; /* Ensure text is visible on a black background */
+    /* Other styles for these elements... */
+}
+  
+  hr {
+    margin: 20px 0;
+  }
+  
+  a {
+    color: #39bf9e; /* link color */
+  }
+  
+
+.input-container {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.input-container input:focus {
+    outline: none;
+    border-color: #39bf9e; /* Stripe's blue */
+    box-shadow: 0 0 0 3px #39bf9e; /* Subtle glow effect */
+}
+
+.input-container label {
+    display: block;
+    margin-bottom: 5px;
+    color: white;
+    text-align: left;
+}
+
+.forgot-password {
+    display: block;
+    text-align: right;
+    margin-top: 5px;
+    color:#39bf9e;
+}
+
+.alert {
+    padding: 8px;
+    background-color: #f14336; /* Red */
+    color: white;
+    margin-bottom: 15px;
+}

@@ -213,6 +213,12 @@ function applyGlowEffectToWeeks(milestoneData) {
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
     renderCalendar();
+      // Check if the element exists
+    if (document.getElementById("successAlert")) {
+        setTimeout(function() {
+        document.getElementById("successAlert").style.display = 'none';
+    }, 3000); // 3000 milliseconds = 3 seconds
+  }
 });
 
 function setupEventListeners() {
@@ -445,7 +451,7 @@ function setupModalCloseEvent() {
     };
 }
 
-// Helper function to clear element content
+// Helper function to clear element content, otherwise you will have multiple weeks in the modal
 /**
  * Clears the content of an HTML element.
  * @param {HTMLElement} element - The element to be cleared.

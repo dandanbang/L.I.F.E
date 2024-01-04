@@ -15,6 +15,39 @@ a, h1, h2, h3, h4, h5, h6 {
     /* Other styles for these elements... */
 }
 
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: black; /* Adjust the color as needed */
+    color: white;
+}
+
+.nav-logo h2 {
+    margin: 0; /* Removes default margin */
+    /* Additional styling for your logo or brand name */
+    
+}
+.nav-links {
+    /* Style as needed */
+}
+
+.nav-login-button {
+    background-color: #39bf9e; /* Google's blue color, change as desired */
+    color:black;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.nav-login-button:hover {
+    background-color:  #009900; /* Darker shade of blue for hover effect */
+}
+
+
 /* Adjust the styles of other elements like buttons, inputs, etc., as needed */
 button, input[type="text"], input[type="date"], textarea {
     background-color: #333; /* Dark background for input elements */
@@ -66,6 +99,18 @@ textarea {
     width: calc(100% - 130px);
 }
 
+#visualizeButton {
+    margin-top: 20px;
+    background-color: #39bf9e;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
 #visualizeButton:hover {
     background-color: #009900;
 }
@@ -89,20 +134,6 @@ input[type="date"] {
     text-align: center;
     -moz-text-align-last: center; /* Firefox */
 }
-
-#visualizeButton {
-    margin-top: 20px;
-    background-color: #39bf9e;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-
 
 .calendar-container {
     background-color: black; /* Black background */
@@ -355,4 +386,8 @@ input[type="date"] {
     10%, 90% { opacity: 1; } /* The lock becomes visible quickly and remains so for most of the duration */
 }
 
-  
+.alert-success {
+    padding: 10px;
+    background-color: #39bf9e; 
+    color: white;
+}
