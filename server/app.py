@@ -118,10 +118,10 @@ def google_login():
 @app.route('/login/callback')
 def login_callback():
     # Handles the callback from Google's OAuth service
-    token = google.authorize_access_token()
+    googleToken = google.authorize_access_token()
     resp = google.get('userinfo')  # This endpoint fetches user details
     user_info = resp.json()
-    print('Token:', token)
+    print('Token:', googleToken)
     print('User Info:', user_info);
 
     if not user_info:
@@ -158,9 +158,16 @@ def login_callback():
     flash('Successfully logged in!', 'success')
     return redirect(url_for('index'))
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout():
-    session.pop('user_id', None)
+    user_id = session.get('user_id')
+    # Ensure that the logout can only be performed if the request comes from a logged-in session
+    if not user_id:
+        flash('You are not logged in.', 'error')
+        print('not logged in')
+        return redirect(url_for('login'))
+    
+    session.clear()
     print('logout')
     return redirect(url_for('index', logout_success=True))
 

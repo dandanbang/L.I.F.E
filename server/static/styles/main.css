@@ -47,6 +47,10 @@ a, h1, h2, h3, h4, h5, h6 {
     background-color:  #009900; /* Darker shade of blue for hover effect */
 }
 
+#logout-form {
+    display: inline-block; /* Ensures the form is displayed inline */
+}
+
 .nav-login-button {
     color:#39bf9e;
     border: none;
