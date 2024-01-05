@@ -1,0 +1,36 @@
+<head>
+  <title>Life Operating System</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/signup.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+</head>
+<div class="signup-container">
+    <h1>Create Account</h1>
+    <button class="google-btn" onclick="window.location.href='/google-login'">
+      <span class="google-icon"></span>
+      Continue with Google
+    </button>
+    <div class="no-credit-card">
+      NO CREDIT CARD REQUIRED
+    </div>    
+    <!-- <button id="googleSignup" onclick="window.location.href='/google-login'">Continue with Google</button> -->
+    <hr>
+    {% for message in get_flashed_messages() %}
+     <div class="alert">{{ message }}</div>
+    {% endfor %}
+    <form id="createAccountForm" action="/create_account" method="post">
+      <div class="input-container">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Email" name="email" required>
+    </div>
+    <div class="input-container">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Password" name="password" required>
+      <button type="submit" class="btn-continue">Sign Up</button>
+    </div>
+    </form>
+    <a href="/toLogin">Have an account? Sign in</a>
+</div>
+
+
+
+  

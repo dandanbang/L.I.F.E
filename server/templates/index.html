@@ -12,11 +12,18 @@
         </div>
         <div class="nav-links">
             <button onclick="location.href='/toLogin'" class="nav-login-button">Login</button>
+            <button onclick="location.href='/toSignup'" class="nav-signup-button">Signup</button>
+            <button onclick="location.href='/logout'" class="nav-logout-button">Logout</button>
         </div>
     </nav>
     {% if account_created %}
     <div id="successAlert" class="alert alert-success">
       Account created successfully!
+    </div>
+    {% endif %}
+    {% if logout_success %}
+    <div id="successAlert" class="alert alert-success">
+      Logout successfully!
     </div>
     {% endif %}
     <div id="initial-container" class="centered-container">

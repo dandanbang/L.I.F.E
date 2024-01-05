@@ -33,7 +33,7 @@ a, h1, h2, h3, h4, h5, h6 {
     /* Style as needed */
 }
 
-.nav-login-button {
+.nav-signup-button {
     background-color: #39bf9e; /* Google's blue color, change as desired */
     color:black;
     border: none;
@@ -43,10 +43,37 @@ a, h1, h2, h3, h4, h5, h6 {
     font-size: 1em;
 }
 
-.nav-login-button:hover {
+.nav-signup-button:hover {
     background-color:  #009900; /* Darker shade of blue for hover effect */
 }
 
+.nav-login-button {
+    color:#39bf9e;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.nav-logout-button:hover {
+    background-color: #39bf9da9;
+    color: white;
+}
+
+.nav-logout-button {
+    color:#39bf9e;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.nav-logout-button:hover {
+    background-color: #39bf9da9;
+    color: white;
+}
 
 /* Adjust the styles of other elements like buttons, inputs, etc., as needed */
 button, input[type="text"], input[type="date"], textarea {
@@ -141,6 +168,16 @@ input[type="date"] {
     display: grid;
     grid-template-columns: 20px auto;
     overflow: visible; /* Make sure it's not set to 'hidden' */
+    /* make container centered */
+    justify-content: center;
+    align-items: center;
+}
+
+#calendar {
+    display: grid;
+    grid-template-columns: repeat(52, 20px); /* 52 columns to match the weeks in a year */
+    grid-auto-rows: 20px; /* Each row is 20px tall */
+    gap: 2px; /* 2px gap between cells */
 }
 
 #legendX {
@@ -161,13 +198,6 @@ input[type="date"] {
     font-size: smaller; /* Smaller font size for the legend numbers */
 }
 
-
-#calendar {
-    display: grid;
-    grid-template-columns: repeat(52, 20px); /* 52 columns to match the weeks in a year */
-    grid-auto-rows: 20px; /* Each row is 20px tall */
-    gap: 2px; /* 2px gap between cells */
-}
 
 .week, .legend-cell {
     width: 20px;

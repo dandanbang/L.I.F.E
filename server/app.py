@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 from flask import Flask, jsonify, send_from_directory, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS  
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 import sqlite3
 from authlib.integrations.flask_client import OAuth
 import os
@@ -34,7 +36,13 @@ def get_db_connection():
 def home():
     # Renders the index.html page   
     account_created = request.args.get('account_created') == 'True'
-    return render_template('index.html', account_created=account_created)
+    logout_success = request.args.get('logout_success') == 'True'
+    return render_template('index.html', account_created=account_created, logout_success=logout_success)
+
+@app.route('/toSignup')
+def toSignup():
+    # Renders the signup.html page
+    return render_template('signup.html')
 
 @app.route('/create_account', methods=['POST'])
 def create_account():
@@ -45,18 +53,31 @@ def create_account():
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+        
     # Check if email already exists
     cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
-    if cursor.fetchone() is not None:
-        flash('Email already exists.')
-        return redirect(url_for('login'))
+    user = cursor.fetchone()
+    
+    if user:
+        if user['password'] is None:
+            # User exists but registered via Google
+            flash('It looks like you have already registered with Google. Please sign in using Google.', 'info')
+            return redirect(url_for('toLogin'))
+        else:
+            # User exists with a password (normal email registration)
+            flash('Email already exists. Please sign in.', 'warning')
+            return redirect(url_for('toLogin'))
     
     cursor.execute('INSERT INTO users (email, password) VALUES (?, ?)', (email, hashed_password))
     conn.commit()
     conn.close()
     
     return redirect(url_for('index', account_created=True))
+
+@app.route('/toLogin')
+def toLogin():
+    # Renders the login.html page
+    return render_template('login.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -69,17 +90,23 @@ def login():
         cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
         user = cursor.fetchone()
         
-        if user and check_password_hash(user['password'], password):
-            session['user_id'] = user['id']
-            return redirect(url_for('index'))
+        if user:
+            if user['password'] is None:
+                # User registered via Google, no password set
+                flash('It looks like you registered with Google. Please use Google to sign in.', 'info')
+                return redirect(url_for('login'))
+            elif check_password_hash(user['password'], password):
+                # User exists and password is correct
+                session['user_id'] = user['id']
+                return redirect(url_for('index'))
+            else:
+                # Password is incorrect
+                flash('Invalid email or password. Please try again.', 'error')
+        
         else:
-            flash('Please check your login details and try again.')
-            return redirect(url_for('login'))
-    return render_template('login.html')
-
-@app.route('/toLogin')
-def toLogin():
-    # Renders the login.html page
+            # User does not exist
+            flash('No account found with that email. Please sign up.', 'error')
+        
     return render_template('login.html')
 
 @app.route('/google-login')
@@ -92,18 +119,50 @@ def google_login():
 def login_callback():
     # Handles the callback from Google's OAuth service
     token = google.authorize_access_token()
-    resp = google.get('userinfo')
+    resp = google.get('userinfo')  # This endpoint fetches user details
     user_info = resp.json()
     print('Token:', token)
-    print('User Info:', user_info)
-    print('Successfully logged in!')
-    # Perform user session creation or any other required actions here
+    print('User Info:', user_info);
+
+    if not user_info:
+        # User info could not be retrieved
+        flash('Could not retrieve user information from Google.', 'error')
+        return redirect(url_for('login'))
+
+    # Connect to the database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Check if the user already exists
+    cursor.execute('SELECT * FROM users WHERE email = ?', (user_info['email'],))
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        # User already exists, update the user record
+        user_id = existing_user['id']
+    else:
+        # User does not exist, create a new user record
+        name = user_info.get('name', None)  # Provide a default name if 'name' is not present
+        picture = user_info.get('picture', None)  # Use None if 'picture' is not present
+        cursor.execute('INSERT INTO users (email, name, picture) VALUES (?, ?, ?)', 
+                       (user_info['email'], name, picture))
+        user_id = cursor.lastrowid  # Get the id of the newly created user record
+
+    conn.commit()
+    conn.close()
+
+    # Set up user session
+    session['user_id'] = user_id
+    session['user_email'] = user_info['email']
+
+    flash('Successfully logged in!', 'success')
     return redirect(url_for('index'))
 
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
-    return redirect(url_for('index'))
+    print('logout')
+    return redirect(url_for('index', logout_success=True))
 
 def generate_calendar_data(start_year, end_year):
     calendar_data = []
