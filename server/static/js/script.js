@@ -1,3 +1,5 @@
+let birthday;
+
 function fetchCalendarData() {
     fetch('http://127.0.0.1:5000/calendar')
     .then(response => response.json())
@@ -22,15 +24,12 @@ function fetchMilestonesData() {
 
 // renderCalendar function
 function renderCalendar() {
-    if (!validateAndSetupBirthday()) return;
+    if (!birthday) return;
 
     // Hide the initial container
     document.getElementById('initial-container').style.display = 'none';
-
     generateLegends();
-    fetchCalendarData()
-
-    
+    fetchCalendarData()    
     // After generating the calendar, make sure it's visible
     document.getElementById('calendar').style.display = 'grid'; // Assuming the calendar is using a grid layout
 }
@@ -38,13 +37,39 @@ function renderCalendar() {
 // Helper functions
 function validateAndSetupBirthday() {
     const birthdayValue = document.getElementById('birthdayInput').value;
+    console.log('birthday value is:', birthdayValue);
+
     if (!birthdayValue) {
+        // Show some error to the user or handle the lack of input
         return false;
     }
-    birthday = new Date(birthdayValue);
+
+    // Send the birthday to the server to store it
+    fetch('/set_birthday', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `birthday=${encodeURIComponent(birthdayValue)}`,
+        // You can add credentials: 'include' if your API requires session cookies to be sent
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(result => {
+        console.log('successresult from set_birthday', result); // Success message from server
+    })
+    .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+    });
+
+    birthday = new Date(birthdayValue); // This should probably be moved to fetchCalendarData or called after the fetch promise resolves
+    renderCalendar();
     return true;
 }
-
 function generateLegends() {
     const legendX = document.getElementById('legendX');
     const legendY = document.getElementById('legendY');
@@ -71,7 +96,7 @@ function generateCalendar(calendarData) {
     const calendar = document.getElementById('calendar');
     calendar.innerHTML = ''; // Clear existing calendar data
 
-    const birthday = new Date(document.getElementById('birthdayInput').value);
+    // const birthday = new Date(document.getElementById('birthdayInput').value);
     const startYear = birthday.getFullYear();
     const endYear = startYear + 90; // Assuming lifespan of 90 years
     const today = new Date();
@@ -125,7 +150,7 @@ function appendWeekToCalendar(calendar, week) {
 }
 
 function highlightInspiration() {
-    const birthday = new Date(document.getElementById('birthdayInput').value);
+    // const birthday = new Date(document.getElementById('birthdayInput').value);
     const weeks = document.querySelectorAll('#calendar .week');
 
     weeks.forEach(week => {
@@ -209,10 +234,24 @@ function applyGlowEffectToWeeks(milestoneData) {
     });
 }
 
-// Event listener setup
+// start loading after initial html is loaded, event listener setup
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
-    renderCalendar();
+
+    fetch('/get_birthday')
+    .then(response => response.json())
+    .then(data => {
+        if (data.birthday) {
+            console.log('Birthday is set:', data.birthday);
+            birthday = new Date(data.birthday);
+            renderCalendar();
+        } else {
+            // Ask the user for their birthday
+            console.log('Birthday is not set');
+            validateAndSetupBirthday();
+        }
+    });
+
       // Check if the element exists
     if (document.getElementById("successAlert")) {
         setTimeout(function() {

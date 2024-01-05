@@ -196,6 +196,61 @@ def index():
     # Assuming index.html is directly in the templates folder
     return render_template('index.html')
 
+@app.route('/set_birthday', methods=['POST'])
+def set_birthday():
+    user_id = session.get('user_id')  # Retrieve user_id from the session
+    if not user_id:
+        return 'You are not logged in!', 401
+
+    birthday = request.form.get('birthday')  # Format expected 'YYYY-MM-DD'
+    if not birthday:
+        return 'No birthday provided!', 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE users SET birthday = ? WHERE id = ?', (birthday, user_id))
+    conn.commit()
+    conn.close()
+
+    return 'Birthday updated successfully!'
+
+@app.route('/get_birthday')
+def get_birthday():
+    if 'user_id' not in session:
+        return jsonify({'error': 'User not logged in'}), 401
+
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT birthday FROM users WHERE id = ?', (user_id,))
+    user_data = cursor.fetchone()
+    conn.close()
+
+    if user_data and user_data['birthday']:
+        return jsonify({'birthday': user_data['birthday']})
+    else:
+        return jsonify({'error': 'Birthday not found'}), 404
+
+# @app.route('/calendar')
+# def calendar():
+#     user_id = session.get('user_id')
+#     if not user_id:
+#         return redirect(url_for('login'))  # Redirect to login if not logged in
+
+#     conn = get_db_connection()
+#     cursor = conn.cursor()
+#     cursor.execute('SELECT birthday FROM users WHERE id = ?', (user_id,))
+#     user_birthday = cursor.fetchone()
+#     conn.close()
+
+#     if user_birthday and user_birthday['birthday']:
+#         birthday = user_birthday['birthday']
+#     else:
+#         birthday = None  # Or set a default value
+
+#     return render_template('calendar.html', birthday=birthday)
+
 @app.route('/<path:path>')
 def static_files(path):
     return send_from_directory('../src', path)
