@@ -10,6 +10,7 @@ function fetchCalendarData() {
     .then(() => { // Add a function declaration here
         highlightInspiration();
         fetchMilestonesData();
+        loadJournalEntries();
     });
 }
 
@@ -110,6 +111,8 @@ function generateCalendar(calendarData) {
         appendWeekToCalendar(calendar, week);
     });
 }
+
+
 
 function filterCalendarData(calendarData, startYear, endYear) {
     return calendarData.filter(weekData => {
@@ -239,36 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dayColumn = document.querySelectorAll('.day-column');
     setupEventListeners();
     document.getElementById("visualizeButton").addEventListener("click", validateAndSetupBirthday);
-
-    fetch('/get_birthday')
-    .then(response => response.json())
-    .then(data => {
-        if (data.birthday) {
-            birthday = new Date(data.birthday);
-            renderCalendar();
-        } else {
-            // Ask the user for their birthday
-            validateAndSetupBirthday();
-        }
-    });
-
-    fetch('/api/journal')
-    .then(response => response.json())
-    .then(entries => {
-            entries.forEach(entry => {
-                console.log('entry is:', entry);
-                dayColumn.forEach(day => {
-                    if (day.getAttribute('date') === entry.date) {
-                        day.querySelector('.journal-entry').value = entry.content;
-                    }
-                });
-            });
-        })
-        .catch(error => console.error('Error:', error))
-        .then(() => { // Add a function declaration here
-            // successfully got the journal entries
-            console.log('successfully retrieved the journal entries')
-        });
+    getBirthday();
 
       // Check if the element exists
     if (document.getElementById("successAlert")) {
@@ -277,6 +251,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 3000); // 3000 milliseconds = 3 seconds
   }
 });
+
+function getBirthday() {
+    fetch('/get_birthday')
+        .then(response => response.json())
+        .then(data => {
+            if (data.birthday) {
+                birthday = new Date(data.birthday);
+                renderCalendar();
+            } else {
+                // Ask the user for their birthday
+                validateAndSetupBirthday();
+            }
+        });
+}
 
 function setupEventListeners() {
     const calendar = document.getElementById('calendar');
@@ -328,6 +316,8 @@ function setupEventListeners() {
         dates.forEach((date, dayIndex) => {        
             weekView.appendChild(createDayColumn(date, dayIndex, currentWeekIndex));
         });
+
+        loadJournalEntries();
     
         modal.style.display = "block";
     });
@@ -382,6 +372,44 @@ function setupEventListeners() {
 
         modal.style.display = "none";
     });
+}
+
+function loadJournalEntries() {
+    fetch('/api/journal')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(entries => {
+            console.log('here are the entries', entries);
+            const entryMap = createEntryMap(entries);
+            const dayColumns = document.querySelectorAll('.day-column');
+            console.log('dayColumns', dayColumns.item(0).getAttribute('date'));
+
+            dayColumns.forEach(dayColumn => {
+                const date = dayColumn.getAttribute('date');
+                console.log('hello daycolumn');
+                console.log('date', date);
+                if (entryMap[date]) {
+                    dayColumn.querySelector('.journal-entry').value = entryMap[date];
+                    console.log('entryMap[date]', entryMap[date])
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading journal entries:', error);
+        });
+}
+
+function createEntryMap(entries) {
+    const map = {};
+    entries.forEach(entry => {
+        map[entry.date] = entry.content;
+    });
+    console.log('map', map);
+    return map;
 }
 
 // Function to create a day column with journal entry and emoji ratings
