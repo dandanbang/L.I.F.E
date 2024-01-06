@@ -37,7 +37,6 @@ function renderCalendar() {
 // Helper functions
 function validateAndSetupBirthday() {
     const birthdayValue = document.getElementById('birthdayInput').value;
-    console.log('birthday value is:', birthdayValue);
 
     if (!birthdayValue) {
         // Show some error to the user or handle the lack of input
@@ -70,6 +69,7 @@ function validateAndSetupBirthday() {
     renderCalendar();
     return true;
 }
+
 function generateLegends() {
     const legendX = document.getElementById('legendX');
     const legendY = document.getElementById('legendY');
@@ -236,21 +236,39 @@ function applyGlowEffectToWeeks(milestoneData) {
 
 // start loading after initial html is loaded, event listener setup
 document.addEventListener('DOMContentLoaded', function() {
+    const dayColumn = document.querySelectorAll('.day-column');
     setupEventListeners();
+    document.getElementById("visualizeButton").addEventListener("click", validateAndSetupBirthday);
 
     fetch('/get_birthday')
     .then(response => response.json())
     .then(data => {
         if (data.birthday) {
-            console.log('Birthday is set:', data.birthday);
             birthday = new Date(data.birthday);
             renderCalendar();
         } else {
             // Ask the user for their birthday
-            console.log('Birthday is not set');
             validateAndSetupBirthday();
         }
     });
+
+    fetch('/api/journal')
+    .then(response => response.json())
+    .then(entries => {
+            entries.forEach(entry => {
+                console.log('entry is:', entry);
+                dayColumn.forEach(day => {
+                    if (day.getAttribute('date') === entry.date) {
+                        day.querySelector('.journal-entry').value = entry.content;
+                    }
+                });
+            });
+        })
+        .catch(error => console.error('Error:', error))
+        .then(() => { // Add a function declaration here
+            // successfully got the journal entries
+            console.log('successfully retrieved the journal entries')
+        });
 
       // Check if the element exists
     if (document.getElementById("successAlert")) {
@@ -321,8 +339,24 @@ function setupEventListeners() {
         for (let i = 0; i < 7; i++) {
             const dayJournalEntry = document.getElementById(`journalDay${i + 1}`);
             const entryContent = dayJournalEntry.value.trim();
-            // Save the journal entry for each day
+            const daysInWeek = weeks[currentWeekIndex].getAttribute('days-in-week');
+            const entryDate = document.getElementsByClassName('day-column').item(i).getAttribute('date');
+            // Save the journal entry for each day on local storage
             localStorage.setItem(`journal_${currentWeekIndex}_day${i + 1}`, entryContent);
+
+            // Save the journal entry for each day on the server
+            if (entryContent) {
+                fetch('/api/journal', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ date: entryDate, content: entryContent })
+                })
+                .then(response => response.json())
+                .then(data => console.log(data.message))
+                .catch(error => console.error('Error:', error));
+            }
 
             // Check if the day has an entry
             if (entryContent !== "") {
@@ -331,7 +365,6 @@ function setupEventListeners() {
 
             // Retrieve and save the selected rating for each day
             const ratingRadio = document.querySelector(`input[name="rating${currentWeekIndex}_day${i + 1}"]:checked`);
-            console.log(ratingRadio);
             if (ratingRadio) {
                 const selectedRating = ratingRadio.value;
                 localStorage.setItem(`rating_${currentWeekIndex}_day${i + 1}`, selectedRating);
@@ -342,7 +375,6 @@ function setupEventListeners() {
             const weekElement = weeks[currentWeekIndex];
             if (weekElement) {
                 weekElement.classList.add('personal-glow');
-                console.log('adding the personal glow')
             }
         }
 
@@ -356,6 +388,7 @@ function setupEventListeners() {
 function createDayColumn(date, dayIndex, currentWeekIndex) {
     const dayColumn = createDayColumnContainer();
     const dayDate = new Date(date);
+    dayColumn.setAttribute('date', date);
 
     createDayLabel(dayColumn, dayDate, dayIndex);
     createJournalEntry(dayColumn, dayIndex, currentWeekIndex);
@@ -377,6 +410,8 @@ function createDayLabel(dayColumn, dayDate, dayIndex) {
         year: 'numeric'
     });
     const dayLabel = document.createElement('div');
+    dayLabel.classList.add('day-label');
+    dayLabel.setAttribute('date', dayDateString);
     dayLabel.textContent = `Day ${dayIndex + 1} - ${dayDateString}`;
     dayColumn.appendChild(dayLabel);
 }
@@ -513,7 +548,6 @@ function updateGlowEffectForWeek(currentWeekIndex) {
     }
 
     const weekElement = weeks[currentWeekIndex];
-    console.log('week element is..:', currentWeekIndex)
     
     if (weekElement) {
         if (hasJournalEntryOrRating) {

@@ -98,6 +98,7 @@ def login():
             elif check_password_hash(user['password'], password):
                 # User exists and password is correct
                 session['user_id'] = user['id']
+                session['logged_in'] = True  # Set the session variable to indicate the user is logged in
                 return redirect(url_for('index'))
             else:
                 # Password is incorrect
@@ -106,6 +107,7 @@ def login():
         else:
             # User does not exist
             flash('No account found with that email. Please sign up.', 'error')
+    
         
     return render_template('login.html')
 
@@ -232,24 +234,38 @@ def get_birthday():
     else:
         return jsonify({'error': 'Birthday not found'}), 404
 
-# @app.route('/calendar')
-# def calendar():
-#     user_id = session.get('user_id')
-#     if not user_id:
-#         return redirect(url_for('login'))  # Redirect to login if not logged in
+@app.route('/api/journal', methods=['POST'])
+def save_journal_entry():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
 
-#     conn = get_db_connection()
-#     cursor = conn.cursor()
-#     cursor.execute('SELECT birthday FROM users WHERE id = ?', (user_id,))
-#     user_birthday = cursor.fetchone()
-#     conn.close()
+    user_id = session['user_id']
+    entry_date = request.json.get('date')
+    content = request.json.get('content')
 
-#     if user_birthday and user_birthday['birthday']:
-#         birthday = user_birthday['birthday']
-#     else:
-#         birthday = None  # Or set a default value
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO journal_entries (user_id, entry_date, content) VALUES (?, ?, ?)',
+                   (user_id, entry_date, content))
+    conn.commit()
+    conn.close()
 
-#     return render_template('calendar.html', birthday=birthday)
+    return jsonify({'message': 'Journal entry saved successfully'}), 200
+
+@app.route('/api/journal', methods=['GET'])
+def get_journal_entries():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+
+    user_id = session['user_id']
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT entry_date, content FROM journal_entries WHERE user_id = ?', (user_id,))
+    entries = cursor.fetchall()
+    conn.close()
+
+    return jsonify([{'date': entry['entry_date'], 'content': entry['content']} for entry in entries])
 
 @app.route('/<path:path>')
 def static_files(path):

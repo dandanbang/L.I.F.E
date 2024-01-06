@@ -4,6 +4,9 @@
     <title>Life Operating System</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/main.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+        <!-- Reference to your external JavaScript file -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.test.js') }}"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -11,11 +14,14 @@
             <h2>My Life OS</h2> <!-- You can replace this with your logo if you have one -->
         </div>
         <div class="nav-links">
+            {% if not session.logged_in %}
             <button onclick="location.href='/toLogin'" class="nav-login-button">Login</button>
             <button onclick="location.href='/toSignup'" class="nav-signup-button">Signup</button>
+            {% else %}
             <form action="{{ url_for('logout') }}" method="post" id="logout-form">
                 <button onclick="location.href='/logout'" class="nav-logout-button">Logout</button>
             </form>
+            {% endif %}
         </div>
     </nav>
     {% if account_created %}
@@ -32,7 +38,7 @@
         <h1>Enter Your Birthday</h1>
         <div class="input-group">
           <input type="date" id="birthdayInput" placeholder="Enter your birthday...">
-          <button id="visualizeButton" onclick="validateAndSetupBirthday()">Visualize</button>
+          <button id="visualizeButton">Visualize</button>
         </div>
     </div>
       <div class="calendar-container">
@@ -58,9 +64,5 @@
           <button id="saveJournal">Save Entries</button>
       </div>
   </div>
-
-  <!-- Reference to your external JavaScript file -->
-  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/script.test.js') }}"></script>
 </body>
 </html>
