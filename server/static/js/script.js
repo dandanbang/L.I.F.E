@@ -1,16 +1,17 @@
 let birthday;
+let journalWeeks = []; // Will store weeks that have journal entries
 
 function fetchCalendarData() {
     fetch('http://127.0.0.1:5000/calendar')
     .then(response => response.json())
     .then(data => {
+        console.log('generating calendar with data');
         generateCalendar(data); // Call renderCalendar with the fetched data
     })
     .catch(error => console.error('Error fetching calendar data:', error))
     .then(() => { // Add a function declaration here
         highlightInspiration();
         fetchMilestonesData();
-        loadJournalEntries();
     });
 }
 
@@ -22,6 +23,16 @@ function fetchMilestonesData() {
         })
         .catch(error => console.error('Error fetching milestones data:', error));
 }
+
+function fetchJournalWeeks() {
+    fetch('/api/journal/weeks')
+        .then(response => response.json())
+        .then(weeks => {
+            journalWeeks = weeks;
+            applyGlowEffectToWeeks();
+        })
+        .catch(error => console.error('Error fetching journal weeks:', error));
+    }
 
 // renderCalendar function
 function renderCalendar() {
@@ -108,11 +119,25 @@ function generateCalendar(calendarData) {
     filteredData.forEach(weekData => {
         const week = createWeekElement(weekData);
         classifyWeek(week, weekData, birthday, today, birthWeekNumber);
+
+        // const dayColumns = []; // Array to store day columns temporarily
+        // const daysInWeek = week.getAttribute('days-in-week').split(',');
+        // daysInWeek.forEach((date, dayIndex) => {
+        //     const dayColumn = createDayColumn(date, dayIndex, weekData.week);
+        //     dayColumns.push(dayColumn); // Add to temporary array
+        // });
+
+        // dayColumns.forEach(dayColumn => week.appendChild(dayColumn)); // Batch append
+        
         appendWeekToCalendar(calendar, week);
     });
+
+    // After the calendar and day columns are generated
+    console.log('loading journal entries');
+    loadJournalEntries();
+    console.log('fetching journal weeks');
+    fetchJournalWeeks(); // Call this function to fetch and store weeks with journal entries
 }
-
-
 
 function filterCalendarData(calendarData, startYear, endYear) {
     return calendarData.filter(weekData => {
@@ -228,13 +253,22 @@ function applyGlowEffectToWeeks(milestoneData) {
 
         // Apply the appropriate glow effect
         week.classList.remove('personal-glow', 'inspiration-glow');
-        if (hasPersonalUpdate) {
-            week.classList.add('personal-glow');
-        }
+        // if (hasPersonalUpdate) {
+        //     week.classList.add('personal-glow');
+        // }
+        weeks.forEach((week, index) => {
+            if (weekHasJournalEntries(index)) {
+                week.classList.add('personal-glow');
+            }
+        });
         if (hasInspirationMilestone) {
             week.classList.add('inspiration-glow');
         }
     });
+}
+
+function weekHasJournalEntries(weekIndex) {
+    return journalWeeks.includes(weekIndex);
 }
 
 // start loading after initial html is loaded, event listener setup
@@ -332,7 +366,7 @@ function setupEventListeners() {
             const daysInWeek = weeks[currentWeekIndex].getAttribute('days-in-week');
             const entryDate = document.getElementsByClassName('day-column').item(i).getAttribute('date');
             // Save the journal entry for each day on local storage
-            localStorage.setItem(`journal_${currentWeekIndex}_day${i + 1}`, entryContent);
+            // localStorage.setItem(`journal_${currentWeekIndex}_day${i + 1}`, entryContent);
 
             // Save the journal entry for each day on the server
             if (entryContent) {
@@ -385,18 +419,22 @@ function loadJournalEntries() {
         .then(entries => {
             console.log('here are the entries', entries);
             const entryMap = createEntryMap(entries);
-            const dayColumns = document.querySelectorAll('.day-column');
-            console.log('dayColumns', dayColumns.item(0).getAttribute('date'));
 
-            dayColumns.forEach(dayColumn => {
-                const date = dayColumn.getAttribute('date');
-                console.log('hello daycolumn');
-                console.log('date', date);
-                if (entryMap[date]) {
-                    dayColumn.querySelector('.journal-entry').value = entryMap[date];
-                    console.log('entryMap[date]', entryMap[date])
+            // Iterate over each entry in the map
+            for (const [date, content] of Object.entries(entryMap)) {
+                // Find the day column with the matching date
+                const dayColumnWithEntry = document.querySelector(`.day-column[date="${date}"]`);
+                console.log('dayColumnWithEntry', dayColumnWithEntry);
+                
+                // If a matching day column is found, update the journal entry
+                if (dayColumnWithEntry) {
+                    const journalEntry = dayColumnWithEntry.querySelector('.journal-entry');
+                    if (journalEntry) {
+                        journalEntry.value = content;
+                        console.log('journalEntryContent', content);
+                    }
                 }
-            });
+            }
         })
         .catch(error => {
             console.error('Error loading journal entries:', error);
@@ -450,7 +488,7 @@ function createJournalEntry(dayColumn, dayIndex, currentWeekIndex) {
     dayJournalEntry.rows = 3;
     dayJournalEntry.classList.add('journal-entry');
     dayJournalEntry.placeholder = "Write your journal entry for this day...";
-    dayJournalEntry.value = localStorage.getItem(`journal_${currentWeekIndex}_day${dayIndex + 1}`) || '';
+    // dayJournalEntry.value = localStorage.getItem(`journal_${currentWeekIndex}_day${dayIndex + 1}`) || '';
     dayColumn.appendChild(dayJournalEntry);
 }
 

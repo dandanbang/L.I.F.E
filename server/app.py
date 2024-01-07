@@ -267,6 +267,21 @@ def get_journal_entries():
 
     return jsonify([{'date': entry['entry_date'], 'content': entry['content']} for entry in entries])
 
+@app.route('/api/journal/weeks')
+def get_journal_weeks():
+    # Ensure the user is logged in
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify([])  # or handle unauthorized access
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT DISTINCT entry_date FROM journal_entries WHERE user_id = ?', (user_id,))
+    weeks = [row['entry_date'] for row in cursor.fetchall()]
+    conn.close()
+
+    return jsonify(weeks)
+
 @app.route('/<path:path>')
 def static_files(path):
     return send_from_directory('../src', path)
