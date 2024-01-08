@@ -9,7 +9,8 @@ function fetchCalendarData() {
     .then(data => {
         generateCalendar(data); // Call renderCalendar with the fetched data
         generateMonthlyCalendar();
-        generateMonthlyLegend();
+        // generateMonthlyLegend();
+        generateYearlyCalendar();
     })
     .catch(error => console.error('Error fetching calendar data:', error))
     .then(() => { // Add a function declaration here
@@ -301,6 +302,29 @@ function classifyMonth(monthElement, year, month) {
 //     }
 // }
 
+function generateYearlyCalendar(calendarData) {
+    const calendar = document.getElementById('calendar-yearly');
+    calendar.innerHTML = ''; // Clear existing calendar data
+
+    // Assuming a lifespan of 90 years, each month's data
+    const year = 1;
+    const lifespan = 90;
+
+    // Create 12 x 90 grid for monthly view
+    for (let year = 0; year < lifespan; year++) {
+        const yearElement = createYearElement(year);
+        calendar.appendChild(yearElement);
+    }
+}
+
+function createYearElement(year) {
+    const yearElement = document.createElement('div');
+    yearElement.classList.add('year');
+    yearElement.classList.add('year-' + year);
+    yearElement.setAttribute('data-year', year);
+    return yearElement;
+}
+
 // Function to toggle calendar views
 function toggleCalendarView(view) {
     const views = document.querySelectorAll('.calendar-view');
@@ -539,7 +563,12 @@ function setupEventListeners() {
             // Logic to switch to the next calendar view
             toggleCalendarView('');
             console.log('right arrow pressed')
+        } else if (event.key === 'ArrowUp') {
+            // Logic to switch to the next calendar view
+            toggleCalendarView('-yearly');
+            console.log('up arrow pressed')
         }
+
     });
 }
 

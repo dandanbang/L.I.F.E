@@ -292,6 +292,72 @@ input[type="date"] {
     box-shadow: 0 4px 6px rgba(0,0,0,0.15); /* Enhanced shadow on hover */
 }
 
+/* Adjust the grid container to align with the new cell sizing */
+#calendar-yearly {
+    display: grid;
+    grid-template-columns: 1fr; /* One column layout */
+    grid-gap: 4px; /* Adds a gap between the year cells */
+    align-items: center; /* Vertically centers the content */
+    justify-items: center; /* Horizontally centers the content */
+}
+
+.year {
+    width: calc(100% - 4px); /* Subtracting the total gap space */
+    height: 20px; /* Height of the year cell, reduced for a sleeker look */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0; /* Subtle grey for a modern, clean appearance */
+    color: #333; /* Maintaining contrast for readability */
+    margin: 2px; /* Ensures space between cells */
+    border: none; /* Removes border for a cleaner look */
+    border-radius: 10px; /* More pronounced rounded edges */
+    box-shadow: none; /* Removes shadow for flat design */
+    transition: background-color 0.3s, transform 0.3s; /* Retains smooth transition for hover effects */
+    font-size: 14px; /* Smaller font size for minimalism */
+    font-weight: 300; /* Lighter font weight for a refined touch */
+    letter-spacing: 1px; /* Increased letter spacing for a more open feel */
+    cursor: pointer; /* Indicates the year can be interacted with */
+}
+
+
+.year:hover {
+    background-color: #e9e9e9; /* A shade darker on hover for a subtle effect */
+    transform: translateY(-2px); /* Subtle lift effect on hover */
+}
+
+/* You may want to style the current year differently to highlight it */
+.year.current-year {
+    background-color: #d1eaff; /* A soft blue to signify the current year */
+    color: #333; /* Keeps the text visible on the lighter background */
+    font-weight: 500; /* Bolder text for emphasis */
+}
+
+
+/* Adding a tooltip for additional information */
+.year::after {
+    content: attr(data-tooltip); /* Use a custom data attribute for tooltip content */
+    visibility: hidden;
+    opacity: 0;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px; /* Offset by half the tooltip's width */
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.year:hover::after {
+    visibility: visible;
+    opacity: 1;
+}
+
 .passed {
     background-color: #62b39e; /* Light green, for example */
 }
@@ -393,7 +459,7 @@ input[type="date"] {
 /* } */
 
 .week-view {
-    /* display: grid; */
+    display: grid;
     grid-template-columns: repeat(7, 1fr); /* 7 equal columns */
     gap: 10px;
     margin: 10px 0;
