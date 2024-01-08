@@ -8,6 +8,8 @@ function fetchCalendarData() {
     .then(response => response.json())
     .then(data => {
         generateCalendar(data); // Call renderCalendar with the fetched data
+        generateMonthlyCalendar();
+        generateMonthlyLegend();
     })
     .catch(error => console.error('Error fetching calendar data:', error))
     .then(() => { // Add a function declaration here
@@ -117,7 +119,8 @@ function renderCalendar() {
     generateLegends();
     fetchCalendarData()    
     // After generating the calendar, make sure it's visible
-    document.getElementById('calendar').style.display = 'grid'; // Assuming the calendar is using a grid layout
+    // document.getElementById('calendar').style.display = 'grid'; 
+    // Assuming the calendar is using a grid layout
 }
 
 // Helper functions
@@ -251,6 +254,60 @@ function appendWeekToCalendar(calendar, week) {
     calendar.appendChild(week);
 }
 
+
+function generateMonthlyCalendar(calendarData) {
+    const calendar = document.getElementById('calendar-monthly');
+    calendar.innerHTML = ''; // Clear existing calendar data
+
+    // Assuming a lifespan of 90 years, each month's data
+    const monthsPerYear = 12;
+    const lifespan = 90;
+
+    // Create 12 x 90 grid for monthly view
+    for (let year = 0; year < lifespan; year++) {
+        for (let month = 0; month < monthsPerYear; month++) {
+            const monthElement = createMonthElement(year, month);
+            classifyMonth(monthElement, year, month);
+            calendar.appendChild(monthElement);
+        }
+    }
+}
+
+function createMonthElement(year, month) {
+    const monthElement = document.createElement('div');
+    monthElement.classList.add('month');
+    monthElement.classList.add('year-' + year);
+    monthElement.setAttribute('data-year', year);
+    monthElement.setAttribute('data-month', month + 1); // +1 because months are 1-indexed
+    return monthElement;
+}
+
+function classifyMonth(monthElement, year, month) {
+    // Add classification logic similar to classifyWeek function
+    // You can add classes based on the month being in the past, present, or future
+}
+
+// function generateMonthlyLegend() {
+//     const legendX = document.getElementById('legendX');
+//     legendX.innerHTML = ''; // Clear existing legend data
+
+//     // Create monthly legend (1-12)
+//     for (let i = 1; i <= 12; i++) {
+//         const monthLabel = document.createElement('div');
+//         monthLabel.classList.add('legend-cell');
+//         monthLabel.innerText = i; // Or month names if preferred
+//         monthLabel.addClassName('calendar-view')
+//         legendX.appendChild(monthLabel);
+//     }
+// }
+
+// Function to toggle calendar views
+function toggleCalendarView(view) {
+    const views = document.querySelectorAll('.calendar-view');
+    views.forEach(v => v.classList.remove('active')); // Hide all views
+    document.getElementById(`calendar${view}`).classList.add('active'); // Show the selected view
+}
+
 function highlightInspiration() {
     // const birthday = new Date(document.getElementById('birthdayInput').value);
     const weeks = document.querySelectorAll('#calendar .week');
@@ -295,7 +352,6 @@ function calculateAge(birthday, date) {
     }
     return age;
 }
-
 
 // Function to apply glow effects
 function applyGlowEffectToWeeks(combinedGlowData) {
@@ -471,6 +527,19 @@ function setupEventListeners() {
         applyGlowEffectToWeeks(combinedGlowData);
 
         modal.style.display = "none";
+    });
+
+    // Event listener for keyboard navigation
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'ArrowLeft') {
+            // Logic to switch to the previous calendar view
+            toggleCalendarView('-monthly');
+            console.log('Left arrow pressed')
+        } else if (event.key === 'ArrowRight') {
+            // Logic to switch to the next calendar view
+            toggleCalendarView('');
+            console.log('right arrow pressed')
+        }
     });
 }
 
