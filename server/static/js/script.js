@@ -1,11 +1,11 @@
 let birthday;
 let journalWeeks = []; // Will store weeks that have journal entries
+let combinedGlowData = [];
 
 function fetchCalendarData() {
     fetch('http://127.0.0.1:5000/calendar')
     .then(response => response.json())
     .then(data => {
-        console.log('generating calendar with data');
         generateCalendar(data); // Call renderCalendar with the fetched data
     })
     .catch(error => console.error('Error fetching calendar data:', error))
@@ -18,21 +18,94 @@ function fetchCalendarData() {
 function fetchMilestonesData() {
     fetch('http://127.0.0.1:5000/milestones')
         .then(response => response.json())
-        .then(data => {
-            applyGlowEffectToWeeks(data);
+        .then(milestoneData => {
+            combineMilestoneData(milestoneData);
+            applyGlowEffectToWeeks(combinedGlowData);
         })
-        .catch(error => console.error('Error fetching milestones data:', error));
+        .catch(error => console.error('Error fetching milestones data:', error))
+        .then(() => { // Add a function declaration here
+            fetchJournalWeeks(); // Call this function to fetch and store weeks with journal entries
+        });
 }
 
 function fetchJournalWeeks() {
     fetch('/api/journal/weeks')
         .then(response => response.json())
-        .then(weeks => {
-            journalWeeks = weeks;
-            applyGlowEffectToWeeks();
+        .then(journalWeeks => {
+            if (!Array.isArray(journalWeeks)) {
+                throw new Error('Expected an array of journal weeks');
+            }
+            combineJournalData(journalWeeks); // Append the array returned from combineJournalData to combinedGlowData            
+            applyGlowEffectToWeeks(combinedGlowData);
         })
         .catch(error => console.error('Error fetching journal weeks:', error));
+}
+
+function combineMilestoneData(milestoneData) {
+    const combinedData = [];
+
+    // Process milestone data
+    milestoneData.forEach(milestone => {
+        const weekIndex = calculateWeekIndexFromMilestone(milestone);
+        combinedGlowData[weekIndex] = combinedGlowData[weekIndex] || {};
+        combinedGlowData[weekIndex] = combinedGlowData[weekIndex];
+        combinedGlowData[weekIndex].milestone = true;
+        combinedGlowData[weekIndex].inspirationFigure = milestone[1];
+        combinedGlowData[weekIndex].age = milestone[2];
+        combinedGlowData[weekIndex].week = milestone[3];
+        combinedGlowData[weekIndex].event = milestone[4];
+    });
+    // return combinedData;
+}
+
+function combineJournalData(journalWeeks) {
+    const combinedData = [];
+
+    // Process journal weeks data
+    journalWeeks.forEach(date => {
+        const weekIndex = calculateWeekIndexFromDate(date);
+        console.log('weekIndex', weekIndex);
+        combinedGlowData[weekIndex] = combinedGlowData[date] || {};
+        combinedGlowData[weekIndex].journal = true;
+        combinedGlowData[weekIndex].date = weekIndex;
+    });
+}
+
+function calculateWeekIndexFromMilestone(milestone) {
+    // Assuming milestone data is structured as [milestoneId, description, age, weekOfYear, additionalInfo]
+    const age = milestone[2];
+    const weekOfYear = milestone[3];
+
+    // Assuming each year has exactly 52 weeks
+    // Calculate the index based on the age and week of the year
+    return age * 52 + weekOfYear - 1; // -1 for zero-based index
+}
+
+/**
+ * Calculate the week index within the calendar based on the person's birth year and a specific date.
+ * This function assumes that the calendar is structured by age and week of the year,
+ * with each year having exactly 52 weeks.
+ * @param {Date} birthday - The person's birthday.
+ * @param {Date} date - The date from which to calculate the week index.
+ * @returns {number} The index of the week in the calendar.
+ */
+function calculateWeekIndexFromDate(date) {
+    // Ensure date is a Date object
+    if (typeof date === 'string') {
+        date = new Date(date);
     }
+
+    // Calculate the full years since January 1st of the birth year
+    const fullYears = date.getFullYear() - birthday.getFullYear();
+
+    // Get the week number for the given date
+    const weekOfYear = getWeekNumber(date);
+    console.log(fullYears * 52 + weekOfYear - 1);
+
+    // Calculate the index based on the full years and week of the year
+    return fullYears * 52 + weekOfYear - 1; // -1 for zero-based index
+}
+
 
 // renderCalendar function
 function renderCalendar() {
@@ -119,24 +192,8 @@ function generateCalendar(calendarData) {
     filteredData.forEach(weekData => {
         const week = createWeekElement(weekData);
         classifyWeek(week, weekData, birthday, today, birthWeekNumber);
-
-        // const dayColumns = []; // Array to store day columns temporarily
-        // const daysInWeek = week.getAttribute('days-in-week').split(',');
-        // daysInWeek.forEach((date, dayIndex) => {
-        //     const dayColumn = createDayColumn(date, dayIndex, weekData.week);
-        //     dayColumns.push(dayColumn); // Add to temporary array
-        // });
-
-        // dayColumns.forEach(dayColumn => week.appendChild(dayColumn)); // Batch append
-        
         appendWeekToCalendar(calendar, week);
     });
-
-    // After the calendar and day columns are generated
-    console.log('loading journal entries');
-    loadJournalEntries();
-    console.log('fetching journal weeks');
-    fetchJournalWeeks(); // Call this function to fetch and store weeks with journal entries
 }
 
 function filterCalendarData(calendarData, startYear, endYear) {
@@ -158,21 +215,35 @@ function createWeekElement(weekData) {
 
 function classifyWeek(week, weekData, birthday, today, birthWeekNumber) {
     const startDate = new Date(weekData.start_date);
+    const endDate = new Date(startDate.getTime());
+    endDate.setDate(startDate.getDate() + 6); // End of the week
+
+    // Classify if the week is before birth
     if (startDate < birthday && startDate.getFullYear() === birthday.getFullYear()) {
         week.classList.add('unborn');
     }
-    if (startDate < today && startDate.getFullYear() <= today.getFullYear()) {
+
+    // Classify if the week is in the past
+    if (startDate < today && today > endDate) {
         week.classList.add('passed');
     }
+
+    // Classify if the week is in the future
     if (startDate > today) {
         week.classList.add('future-week');
     }
+
+    // Classify if the week is the birth week
     if (parseInt(week.getAttribute('data-index')) === birthWeekNumber && startDate.getFullYear() === birthday.getFullYear()) {
         week.classList.add('birth-week');
         week.innerHTML += ' &#x1F476;'; // Unicode for baby emoji
     }
-}
 
+    // Highlight the current week
+    if (today >= startDate && today <= endDate) {
+        week.classList.add('current-week');
+    }
+}
 function appendWeekToCalendar(calendar, week) {
     calendar.appendChild(week);
 }
@@ -222,47 +293,23 @@ function calculateAge(birthday, date) {
     return age;
 }
 
+
 // Function to apply glow effects
-function applyGlowEffectToWeeks(milestoneData) {
+function applyGlowEffectToWeeks(combinedGlowData) {
     const weeks = document.querySelectorAll('#calendar .week');
 
     weeks.forEach((week, index) => {
-
-        let hasPersonalUpdate = false;
-        let hasInspirationMilestone = false;
-
-        const startDate = new Date(week.getAttribute('start-date'));
-        const age = calculateAge(birthday, startDate);
-        const weekOfYear = index % 52 + 1;// Holds the milestone content
-
-        // Check for personal journal entries or ratings
-        for (let i = 0; i < 7; i++) {
-            if (localStorage.getItem(`journal_${index}_day${i + 1}`) ||
-                localStorage.getItem(`rating_${index}_day${i + 1}`)) {
-                hasPersonalUpdate = true;
-                break;
-            }
-        }
-        // Check for milestones from fetched data
-        milestoneData.forEach(milestone => {
-            if (milestone[2] === age && milestone[3] === weekOfYear) {
-                hasInspirationMilestone = true;
-                week.setAttribute('milestone', milestone[1] + ', ' + milestone[4]); // Set the milestone attribute')
-            }
-        });
+        let hasPersonalUpdate = !!combinedGlowData[index]?.journal;
+        let hasInspirationMilestone = !!combinedGlowData[index]?.milestone;
 
         // Apply the appropriate glow effect
         week.classList.remove('personal-glow', 'inspiration-glow');
-        // if (hasPersonalUpdate) {
-        //     week.classList.add('personal-glow');
-        // }
-        weeks.forEach((week, index) => {
-            if (weekHasJournalEntries(index)) {
-                week.classList.add('personal-glow');
-            }
-        });
+        if (hasPersonalUpdate) {
+            week.classList.add('personal-glow');
+        }
         if (hasInspirationMilestone) {
             week.classList.add('inspiration-glow');
+            week.setAttribute('milestone', combinedGlowData[index].inspirationFigure + ', ' + combinedGlowData[index].event);
         }
     });
 }
@@ -402,7 +449,7 @@ function setupEventListeners() {
             }
         }
 
-        updateGlowEffectForWeek(currentWeekIndex);
+        applyGlowEffectToWeeks(combinedGlowData);
 
         modal.style.display = "none";
     });
@@ -417,21 +464,18 @@ function loadJournalEntries() {
             return response.json();
         })
         .then(entries => {
-            console.log('here are the entries', entries);
             const entryMap = createEntryMap(entries);
 
             // Iterate over each entry in the map
             for (const [date, content] of Object.entries(entryMap)) {
                 // Find the day column with the matching date
                 const dayColumnWithEntry = document.querySelector(`.day-column[date="${date}"]`);
-                console.log('dayColumnWithEntry', dayColumnWithEntry);
                 
                 // If a matching day column is found, update the journal entry
                 if (dayColumnWithEntry) {
                     const journalEntry = dayColumnWithEntry.querySelector('.journal-entry');
                     if (journalEntry) {
                         journalEntry.value = content;
-                        console.log('journalEntryContent', content);
                     }
                 }
             }

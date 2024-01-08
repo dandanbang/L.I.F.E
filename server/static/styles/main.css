@@ -216,6 +216,8 @@ input[type="date"] {
     color: white; /* White text */
     position: relative; /* Adjust as necessary */
     margin: 0; /* Add more space around the squares */
+    /* make the edges slightly rounded */
+    border-radius: 3.5px;
 }
 
 .week:hover {
@@ -393,6 +395,25 @@ input[type="date"] {
     opacity: 1; /* Make it fully opaque */
     transform: scale(1.2); /* Enlarge selected emoji */
     background-color: transparent; /* Maintain transparent background */
+}
+
+@keyframes heartbeat {
+    0% {
+      transform: scale(0.8);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.25);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0.8);
+      opacity: 1;
+    }
+  }
+
+.current-week {
+animation: heartbeat 6s infinite;
 }
 
 .future-week {
