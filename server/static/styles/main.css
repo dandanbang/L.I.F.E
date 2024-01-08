@@ -1,3 +1,9 @@
+/* Reset any additional margins or paddings that might be affecting layout */
+* {
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Avenir', 'Helvetica Neue', sans-serif;
     margin: 0;
@@ -7,7 +13,6 @@ body {
     color: #333;
     text-align: center;
 }
-
 
 /* If you have specific elements like headers, links, etc., ensure they are styled appropriately */
 a, h1, h2, h3, h4, h5, h6 {
@@ -232,7 +237,7 @@ input[type="date"] {
 }
 
 .passed {
-    background-color: #73baa8; /* Light green, for example */
+    background-color: #62b39e; /* Light green, for example */
 }
 
 .passed:hover {
@@ -322,14 +327,14 @@ input[type="date"] {
     cursor: pointer;
 }
 
-.celebratory-week {
+/* .celebratory-week {
     background-color: #dec475; /* Or any celebratory color */
     /* Add more styles if needed */
-}
+/* } */
 
-.christmas-week {
+/* .christmas-week {
     background-color: #d38484; /* Red background for Christmas week */
-}
+/* } */
 
 .week-view {
     display: grid;
@@ -357,12 +362,6 @@ input[type="date"] {
 
 .inspiration-glow {
     box-shadow: inset 0 0 10px rgba(128, 0, 128, 0.8), 0 0 15px rgba(75, 0, 130, 0.7); /* A deep purple color */
-}
-
-/* Reset any additional margins or paddings that might be affecting layout */
-* {
-    margin: 0;
-    padding: 0;
 }
 
 .day-rating label {
@@ -418,6 +417,7 @@ input[type="date"] {
   }
 
 .current-week {
+background-color: #009945;
 animation: heartbeat 6s infinite;
 }
 
@@ -454,6 +454,7 @@ animation: heartbeat 6s infinite;
 
 #lifeProgressBarContainer {
     visibility: hidden;
+    cursor: pointer; /* Indicates the element is clickable */
     width: 40%;
     background-color: #ddd;
     border: 3px solid #000;

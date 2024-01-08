@@ -12,7 +12,7 @@
 <body>
     <nav class="navbar">
         <div class="nav-logo">
-            <h2 id="appTitle">My Life OS</h2> <!-- You can replace this with your logo if you have one -->
+            <h2 id="appTitle">Life OS</h2> <!-- You can replace this with your logo if you have one -->
         </div>
         <div class="nav-links">
             {% if not session.logged_in %}
@@ -42,8 +42,8 @@
           <button id="visualizeButton">Visualize</button>
         </div>
     </div>
-    <h4 id="lifeProgressTitle">Life Progress</h4>
-    <div id="lifeProgressBarContainer">
+    <h4 id="lifeProgressTitle">My Life Progress</h4>
+    <div id="lifeProgressBarContainer" onclick="toggleProgressDisplay()">
         <div id="lifeProgressBar">
             <span id="lifeProgressPercentage"></span>
         </div>

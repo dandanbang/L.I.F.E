@@ -1,6 +1,7 @@
 let birthday;
 let journalWeeks = []; // Will store weeks that have journal entries
 let combinedGlowData = [];
+let showingLifeProgress = true;
 
 function fetchCalendarData() {
     fetch('http://127.0.0.1:5000/calendar')
@@ -64,7 +65,6 @@ function combineJournalData(journalWeeks) {
     // Process journal weeks data
     journalWeeks.forEach(date => {
         const weekIndex = calculateWeekIndexFromDate(date);
-        console.log('weekIndex', weekIndex);
         combinedGlowData[weekIndex] = combinedGlowData[date] || {};
         combinedGlowData[weekIndex].journal = true;
         combinedGlowData[weekIndex].date = weekIndex;
@@ -100,8 +100,6 @@ function calculateWeekIndexFromDate(date) {
 
     // Get the week number for the given date
     const weekOfYear = getWeekNumber(date);
-    console.log(fullYears * 52 + weekOfYear - 1);
-
     // Calculate the index based on the full years and week of the year
     return fullYears * 52 + weekOfYear - 1; // -1 for zero-based index
 }
@@ -693,12 +691,38 @@ function calculateLifeProgress(birthday) {
     // Update the progress bar width
     const progressBar = document.getElementById('lifeProgressBar');
     progressBar.style.width = percentageLived + '%';
+    lifeProgressTitle.textContent = 'My Life Progress';
     const progressPercentage = document.getElementById('lifeProgressPercentage');
     progressPercentage.textContent = percentageLived.toFixed(2) + '% lived';
+    progressPercentage.style.visibility = 'visible';
 }
 
 // Call this function with the user's actual birthday to update the progress bar
 function updateLifeProgress(birthdayInput) {
     const birthday = new Date(birthdayInput); // Use the input from user
     calculateLifeProgress(birthday);
+}
+
+function showCurrentYearProgress() {
+    const now = new Date();
+    const percentageLivedThisYear = (getWeekNumber(now) / 52) * 100;
+    const progressBar = document.getElementById('lifeProgressBar');
+    const progressPercentage = document.getElementById('lifeProgressPercentage');
+
+    progressBar.style.width = percentageLivedThisYear + '%';
+    lifeProgressTitle.textContent = percentageLivedThisYear.toFixed(2) + '% lived this year';
+    progressPercentage.style.visibility = 'hidden';
+
+}
+
+function toggleProgressDisplay() {
+    if (showingLifeProgress) {
+        // Show current year progress
+        showCurrentYearProgress();
+    } else {
+        // Show life progress
+        calculateLifeProgress(birthday);
+    }
+    // Toggle the state
+    showingLifeProgress = !showingLifeProgress;
 }
