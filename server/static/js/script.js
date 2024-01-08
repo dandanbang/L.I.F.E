@@ -417,9 +417,6 @@ function setupEventListeners() {
             const entryContent = dayJournalEntry.value.trim();
             const daysInWeek = weeks[currentWeekIndex].getAttribute('days-in-week');
             const entryDate = document.getElementsByClassName('day-column').item(i).getAttribute('date');
-            // Save the journal entry for each day on local storage
-            // localStorage.setItem(`journal_${currentWeekIndex}_day${i + 1}`, entryContent);
-
             // Save the journal entry for each day on the server
             if (entryContent) {
                 fetch('/api/journal', {
@@ -441,9 +438,26 @@ function setupEventListeners() {
 
             // Retrieve and save the selected rating for each day
             const ratingRadio = document.querySelector(`input[name="rating${currentWeekIndex}_day${i + 1}"]:checked`);
+            let selectedRating = "";
+
             if (ratingRadio) {
-                const selectedRating = ratingRadio.value;
-                localStorage.setItem(`rating_${currentWeekIndex}_day${i + 1}`, selectedRating);
+                selectedRating = ratingRadio.value;
+
+                // Save the journal entry and emoji for each day on the server
+                fetch('/api/journal', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        date: entryDate, 
+                        content: entryContent,
+                        emoji: selectedRating  // Include the emoji in the request
+                    })
+                })
+                .then(response => response.json())
+                .then(data => console.log(data.message))
+                .catch(error => console.error('Error:', error));
             }
         }
 
@@ -480,7 +494,17 @@ function loadJournalEntries() {
                 if (dayColumnWithEntry) {
                     const journalEntry = dayColumnWithEntry.querySelector('.journal-entry');
                     if (journalEntry) {
-                        journalEntry.value = content;
+                        journalEntry.value = content[0];
+                    }
+                    const dayRating = dayColumnWithEntry.querySelector('.day-rating');
+                    const emojiLabel = dayColumnWithEntry.querySelectorAll('.emoji-label');
+                    console.log(dayRating);
+                    console.log(emojiLabel);
+                    if (dayRating) {
+                        dayRating.value = content[1];
+                        console.log(dayRating.value);
+                        emojiLabel[dayRating.value - 1].classList.add('currently-selected-emoji');
+                        emojiLabel[dayRating.value - 1].style.opacity = '1';
                     }
                 }
             }
@@ -493,9 +517,8 @@ function loadJournalEntries() {
 function createEntryMap(entries) {
     const map = {};
     entries.forEach(entry => {
-        map[entry.date] = entry.content;
+        map[entry.date] = [entry.content, entry.emoji];
     });
-    console.log('map', map);
     return map;
 }
 
@@ -537,7 +560,6 @@ function createJournalEntry(dayColumn, dayIndex, currentWeekIndex) {
     dayJournalEntry.rows = 3;
     dayJournalEntry.classList.add('journal-entry');
     dayJournalEntry.placeholder = "Write your journal entry for this day...";
-    // dayJournalEntry.value = localStorage.getItem(`journal_${currentWeekIndex}_day${dayIndex + 1}`) || '';
     dayColumn.appendChild(dayJournalEntry);
 }
 
@@ -547,7 +569,6 @@ function createEmojiRatings(dayColumn, dayIndex, currentWeekIndex) {
     dayColumn.appendChild(ratingContainer);
 
     const emojis = ['\uD83D\uDE14', '\uD83D\uDE15', '\uD83D\uDE10', '\uD83D\uDE42', '\uD83D\uDE04'];
-    const savedRating = localStorage.getItem(`rating_${currentWeekIndex}_day${dayIndex + 1}`);
 
     emojis.forEach((emoji, emojiIndex) => {
         const emojiId = `rating${currentWeekIndex}_day${dayIndex + 1}_${emojiIndex + 1}`;
@@ -564,11 +585,6 @@ function createEmojiRatings(dayColumn, dayIndex, currentWeekIndex) {
         emojiLabel.innerHTML = emoji;
         ratingContainer.appendChild(ratingInput);
         ratingContainer.appendChild(emojiLabel);
-
-        if (savedRating && savedRating == ratingInput.value) {
-            emojiLabel.classList.add('currently-selected-emoji');
-            emojiLabel.style.opacity = '1';
-        }
 
         emojiLabel.addEventListener('click', function () {
             ratingInput.checked = true;

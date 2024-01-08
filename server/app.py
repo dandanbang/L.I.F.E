@@ -246,15 +246,17 @@ def save_journal_entry():
     user_id = session['user_id']
     entry_date = request.json.get('date')
     content = request.json.get('content')
+    emoji = request.json.get('emoji')  # Retrieve the emoji from the request
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO journal_entries (user_id, entry_date, content) VALUES (?, ?, ?)',
-                   (user_id, entry_date, content))
+    cursor.execute('INSERT INTO journal_entries (user_id, entry_date, content, emoji) VALUES (?, ?, ?, ?)',
+                   (user_id, entry_date, content, emoji))
     conn.commit()
     conn.close()
 
-    return jsonify({'message': 'Journal entry saved successfully'}), 200
+    return jsonify({'message': 'Journal entry and emoji saved successfully'}), 200
+
 
 @app.route('/api/journal', methods=['GET'])
 def get_journal_entries():
@@ -265,11 +267,11 @@ def get_journal_entries():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT entry_date, content FROM journal_entries WHERE user_id = ?', (user_id,))
+    cursor.execute('SELECT entry_date, content, emoji FROM journal_entries WHERE user_id = ?', (user_id,))
     entries = cursor.fetchall()
     conn.close()
 
-    return jsonify([{'date': entry['entry_date'], 'content': entry['content']} for entry in entries])
+    return jsonify([{'date': entry['entry_date'], 'content': entry['content'], 'emoji': entry['emoji']} for entry in entries])
 
 @app.route('/api/journal/weeks')
 def get_journal_weeks():
