@@ -4,6 +4,7 @@
     <title>Life Operating System</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/main.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
         <!-- Reference to your external JavaScript file -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.test.js') }}"></script>
@@ -11,7 +12,7 @@
 <body>
     <nav class="navbar">
         <div class="nav-logo">
-            <h2>My Life OS</h2> <!-- You can replace this with your logo if you have one -->
+            <h2 id="appTitle">My Life OS</h2> <!-- You can replace this with your logo if you have one -->
         </div>
         <div class="nav-links">
             {% if not session.logged_in %}
@@ -41,14 +42,19 @@
           <button id="visualizeButton">Visualize</button>
         </div>
     </div>
-      <div class="calendar-container">
-          <div id="legendY" class="legend"></div>
-          <div>
-              <div id="legendX" class="legend"></div>
-              <div id="calendar"></div>
-          </div>
-      </div>
-  </div>
+    <h4 id="lifeProgressTitle">Life Progress</h4>
+    <div id="lifeProgressBarContainer">
+        <div id="lifeProgressBar">
+            <span id="lifeProgressPercentage"></span>
+        </div>
+    </div>      
+    <div class="calendar-container">
+        <div id="legendY" class="legend"></div>
+        <div>
+            <div id="legendX" class="legend"></div>
+            <div id="calendar"></div>
+        </div>
+    </div>
 
     <!-- Popup Structure -->
   <div id="popup" class="popup" style="display: none;"></div>

@@ -113,6 +113,9 @@ function renderCalendar() {
 
     // Hide the initial container
     document.getElementById('initial-container').style.display = 'none';
+    document.getElementById('lifeProgressBarContainer').style.visibility = 'visible';
+    document.getElementById('lifeProgressTitle').style.display = 'block';
+
     generateLegends();
     fetchCalendarData()    
     // After generating the calendar, make sure it's visible
@@ -194,6 +197,8 @@ function generateCalendar(calendarData) {
         classifyWeek(week, weekData, birthday, today, birthWeekNumber);
         appendWeekToCalendar(calendar, week);
     });
+
+    updateLifeProgress(birthday);
 }
 
 function filterCalendarData(calendarData, startYear, endYear) {
@@ -324,6 +329,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
     document.getElementById("visualizeButton").addEventListener("click", validateAndSetupBirthday);
     getBirthday();
+    const lifespan = 90; // Replace with expected lifespan
+    calculateLifeProgress(lifespan);
 
       // Check if the element exists
     if (document.getElementById("successAlert")) {
@@ -666,4 +673,32 @@ function updateGlowEffectForWeek(currentWeekIndex) {
             weekElement.classList.remove('personal-glow');
         }
     }
+}
+
+// Assuming you have a function to get the current week number
+function getCurrentWeekNumber(birthday) {
+    const now = new Date();
+    const startOfYear = new Date(now.getUTCFullYear(), 0, 1);
+    const currentWeekNumber = getWeekNumber(now);
+    const birthWeekNumber = getWeekNumber(birthday);
+    const weeksSinceBirth = (now.getUTCFullYear() - birthday.getUTCFullYear()) * 52 + (currentWeekNumber - birthWeekNumber);
+    return weeksSinceBirth;
+}
+
+function calculateLifeProgress(birthday) {
+    const totalWeeks = 52 * 90; // Total weeks in a 90-year lifespan
+    const weeksLived = getCurrentWeekNumber(birthday);
+    const percentageLived = Math.min((weeksLived / totalWeeks) * 100, 100);
+
+    // Update the progress bar width
+    const progressBar = document.getElementById('lifeProgressBar');
+    progressBar.style.width = percentageLived + '%';
+    const progressPercentage = document.getElementById('lifeProgressPercentage');
+    progressPercentage.textContent = percentageLived.toFixed(2) + '% lived';
+}
+
+// Call this function with the user's actual birthday to update the progress bar
+function updateLifeProgress(birthdayInput) {
+    const birthday = new Date(birthdayInput); // Use the input from user
+    calculateLifeProgress(birthday);
 }
