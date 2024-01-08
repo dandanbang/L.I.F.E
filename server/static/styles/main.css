@@ -448,9 +448,20 @@ animation: heartbeat 6s infinite;
 
 .alert-success {
     padding: 10px;
+    font-weight: bold;
     background-color: #39bf9e; 
     color: white;
+    animation: alert-disappear 5s forwards;
 }
+
+@keyframes alert-disappear {
+    0% {
+      visibility: visible;
+    }
+    100% {
+      visibility: hidden;
+    }
+  }
 
 #lifeProgressBarContainer {
     visibility: hidden;

@@ -72,6 +72,10 @@ def create_account():
     conn.commit()
     conn.close()
     
+    # Log in the user by setting up the session
+    session['user_id'] = user_id
+    session['logged_in'] = True  # Indicate that the user is now logged in
+
     return redirect(url_for('index', account_created=True))
 
 @app.route('/toLogin')
