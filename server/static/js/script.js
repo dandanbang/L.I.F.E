@@ -9,7 +9,6 @@ function fetchCalendarData() {
     .then(data => {
         generateCalendar(data); // Call renderCalendar with the fetched data
         generateMonthlyCalendar();
-        // generateMonthlyLegend();
         generateYearlyCalendar();
     })
     .catch(error => console.error('Error fetching calendar data:', error))
@@ -168,6 +167,7 @@ function generateLegends() {
     for (let i = 1; i <= 52; i++) {
         const weekLabel = document.createElement('div');
         weekLabel.classList.add('legend-cell');
+        weekLabel.classList.add('weekLabel');
         weekLabel.innerText = i;
         legendX.appendChild(weekLabel);
     }
@@ -272,6 +272,8 @@ function generateMonthlyCalendar(calendarData) {
             calendar.appendChild(monthElement);
         }
     }
+    console.log('before generateMonthlyLegend');
+    // generateMonthlyLegend();
 }
 
 function createMonthElement(year, month) {
@@ -288,19 +290,21 @@ function classifyMonth(monthElement, year, month) {
     // You can add classes based on the month being in the past, present, or future
 }
 
-// function generateMonthlyLegend() {
-//     const legendX = document.getElementById('legendX');
-//     legendX.innerHTML = ''; // Clear existing legend data
+function generateMonthlyLegend() {
+    const legendX = document.getElementById('legendX');
 
-//     // Create monthly legend (1-12)
-//     for (let i = 1; i <= 12; i++) {
-//         const monthLabel = document.createElement('div');
-//         monthLabel.classList.add('legend-cell');
-//         monthLabel.innerText = i; // Or month names if preferred
-//         monthLabel.addClassName('calendar-view')
-//         legendX.appendChild(monthLabel);
-//     }
-// }
+    // Create monthly legend (1-12)
+    for (let i = 1; i <= 12; i++) {
+        const monthLabel = document.createElement('div');
+        monthLabel.classList.add('legend-cell');
+        monthLabel.innerText = i; // Or month names if preferred
+        monthLabel.classList.add('calendar-view')
+        monthLabel.classList.add('monthLabel')
+        monthLabel.style.visibility = 'hidden';
+        legendX.appendChild(monthLabel);
+        console.log('appended month label');
+    }
+}
 
 function generateYearlyCalendar(calendarData) {
     const calendar = document.getElementById('calendar-yearly');
@@ -558,6 +562,9 @@ function setupEventListeners() {
         if (event.key === 'ArrowLeft') {
             // Logic to switch to the previous calendar view
             toggleCalendarView('-monthly');
+            // legendX.innerHTML = ''; // Clear existing legend data
+            // document.querySelectorAll('.weekLabel').forEach(week => { week.style.visibility = 'hidden' });
+            document.querySelectorAll('.monthLabel').forEach(month => { month.style.visibility = 'visible' });
             console.log('Left arrow pressed')
         } else if (event.key === 'ArrowRight') {
             // Logic to switch to the next calendar view
